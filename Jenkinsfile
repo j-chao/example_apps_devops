@@ -15,7 +15,7 @@ pipeline {
     stage("Run Unit Tests") {
       steps {
         sh '''
-          python3 -m unittest app_test.py -v
+          python3 -m unittest flask_app/app_test.py -v
           '''
       }
     }
