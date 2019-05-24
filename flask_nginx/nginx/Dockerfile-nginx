@@ -1,0 +1,8 @@
+FROM bitnami/nginx:1.16.0
+
+# Nginx will listen on this port
+EXPOSE 8082
+
+# Copy over the server block to the NGINX container
+COPY app.conf /opt/bitnami/nginx/conf/server_blocks/app.conf
+

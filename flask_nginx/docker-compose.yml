@@ -1,0 +1,18 @@
+version: '3.7'
+services:
+  flask:
+    image: webapp-flask
+    build:
+      context: ./flask
+      dockerfile: Dockerfile-flask
+
+  nginx:
+    image: webapp-nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile-nginx
+    ports:
+      - 5000:8082
+    depends_on:
+      - flask
+
