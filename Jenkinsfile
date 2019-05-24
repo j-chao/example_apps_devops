@@ -1,11 +1,9 @@
 #!/usr/bin/env groovy 
 pipeline {
 
-  stages {
+  agent any
 
-    agent {
-      any
-    }
+  stages {
       
     stage("Git Checkout") {
       steps {
