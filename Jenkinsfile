@@ -12,6 +12,14 @@ pipeline {
       }
     }
 
+    stage("Run Unit Tests") {
+      steps {
+        sh '''
+          python3 -m unittest app_test.py -v
+          '''
+      }
+    }
+
     stage("Build Docker Image") {
       steps {
         sh '''
