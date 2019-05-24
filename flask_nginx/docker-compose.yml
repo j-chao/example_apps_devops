@@ -5,6 +5,8 @@ services:
     build:
       context: ./flask
       dockerfile: Dockerfile-flask
+    environment: 
+    - UWSGI_WORKERS=5
 
   nginx:
     image: webapp-nginx
