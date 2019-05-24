@@ -3,7 +3,9 @@ pipeline {
 
   stages {
 
-    agent any
+    agent {
+      any
+    }
       
     stage("Git Checkout") {
       steps {
