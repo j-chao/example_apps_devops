@@ -5,7 +5,7 @@ pipeline {
       
     stage("Git Checkout") {
       steps {
-        checkout([$class: ’GitSCM’, branches: [[name: 'master']],
+        checkout([$class: 'GitSCM', branches: [[name: 'master']],
         userRemoteConfigs: [[url: 'https://github.com/j-chao/example_apps_devops']]])
       }
     }
