@@ -23,7 +23,6 @@ COPY app.py /app/
 # We copy the uwsgi configuration file to a separate directory
 COPY app.ini /etc/uwsgi/
 
-# Finally, we run uWSGI with the ini file we
-# created earlier
+# Finally, we run uWSGI with the ini file we created earlier
 ENTRYPOINT [ "uwsgi", "--ini", "/etc/uwsgi/app.ini" ]
 
