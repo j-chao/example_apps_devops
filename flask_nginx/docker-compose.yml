@@ -6,7 +6,7 @@ services:
       context: ./flask
       dockerfile: Dockerfile-flask
     environment: 
-    - UWSGI_WORKERS=5
+    - MY_ENV_VAR="hello beautiful environment!"
 
   nginx:
     image: webapp-nginx

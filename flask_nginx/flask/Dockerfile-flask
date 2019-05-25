@@ -2,28 +2,28 @@
 # not particularly care what OS runs underneath
 FROM python:3
 
-# Set an environment variable with the directory
-# where we'll be running the app
-ENV APP /app
-
-# Create the directory and instruct Docker to operate
-# from there from now on
-RUN mkdir $APP
-WORKDIR $APP
+# Create the directory for where our application code will be
+# and instruct Docker to work from that directory from now on
+RUN mkdir /app
+WORKDIR /app
 
 # Expose the port uWSGI will listen on
 EXPOSE 5000
 
 # Copy the requirements file in order to install
 # Python dependencies
-COPY requirements.txt .
+COPY requirements.txt /app/
 
 # Install Python dependencies
 RUN pip install -r requirements.txt
 
 # We copy the rest of the codebase into the image
-COPY . .
+COPY app.py /app/
+
+# We copy the uwsgi configuration file to a separate directory
+COPY app.ini /etc/uwsgi/
 
 # Finally, we run uWSGI with the ini file we
 # created earlier
-ENTRYPOINT [ "uwsgi", "--ini", "app.ini" ]
+ENTRYPOINT [ "uwsgi", "--ini", "/etc/uwsgi/app.ini" ]
+
