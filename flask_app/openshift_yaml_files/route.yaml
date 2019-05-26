@@ -1,0 +1,15 @@
+kind: Route # Kind is a string value representing the REST resource this object represents.
+apiVersion: route.openshift.io/v1 # APIVersion defines the versioned schema of this representation of an object.
+metadata: # Standard object metadata
+  labels: # Map of string keys and values that can be used to organize and categorize (scope and select) objects. May match selectors of replication controllers and services.
+    app: flask-app
+  name: flask-app # Name must be unique within a namespace, primarily intended for creation idempotence and configuration definition.
+  namespace: myproject # Namespace/Project for where the resource is.
+spec: # Spec is the desired state of the route
+  port: # If specified, the port to be used by the router.
+    targetPort: 5000-tcp #  The target port on pods selected by the service this route points to. If this is a string, it will be looked up as a named port in the target endpoints port list.
+  to: # To is an object the route should use as the primary backend. Only the Service kind is allowed,
+    kind: Service # The kind of target that the route is referring to. Currently, only 'Service' is allowed.
+    name: flask-app # Name of the service/target that is being referred 
+    weight: 100 # Weight as an integer between 0 and 256, default 1, that specifies the target's relative weight against other target reference objects. 0 suppresses requests to this backend.
+

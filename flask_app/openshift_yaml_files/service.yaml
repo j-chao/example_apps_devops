@@ -1,0 +1,18 @@
+kind: Service # Kind is a string value representing the REST resource this object represents.
+apiVersion: v1 # APIVersion defines the versioned schema of this representation of an object.
+metadata: # Standard object metadata
+  labels: # Map of string keys and values that can be used to organize and categorize (scope and select) objects. May match selectors of replication controllers and services.
+    app: flask-app
+  name: flask-app # Name must be unique within a namespace, primarily intended for creation idempotence and configuration definition.
+  namespace: myproject # Namespace/Project for where the resource is.
+spec: # Spec defines the behavior of a service. 
+  ports: # The list of ports that are exposed by this service.
+  - name: 5000-tcp # The name of this port within the service.
+    port: 5000 # The port that will be exposed by this service.
+    protocol: TCP # The IP protocol for this port. Supports "TCP" and "UDP".
+    targetPort: 5000 # Number or name of the port to access on the pods targeted by the service.
+  selector: # Route service traffic to pods with label keys and values matching this selector. 
+    app: flask-app
+    deploymentconfig: flask-app
+  type: ClusterIP # Type determines how the Service is exposed. Defaults to ClusterIP. Valid options are ExternalName, ClusterIP, NodePort, and LoadBalancer. a
+
