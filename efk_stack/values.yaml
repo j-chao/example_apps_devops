@@ -1,0 +1,60 @@
+# Template values
+
+serviceAccounts:
+  create: true
+  name: kube-state-metrics
+
+fluentd:
+  enabled: true
+  name: fluentd
+  image:
+    repository: localhost:32000/fluentd
+    tag: v1.8.1-debian-1.0
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 24224
+  persistentVolume:
+    storageClass: microk8s-hostpath
+    size: 20Mi
+
+elasticsearch:
+  enabled: true
+  name: elasticsearch
+  image:
+    repository: elasticsearch
+    tag: 7.5.1
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 9200
+  singleNode: true
+  persistentVolume:
+    storageClass: microk8s-hostpath
+    size: 20Mi
+
+apmServer:
+  enabled: true
+  name: apm-server
+  image:
+    repository: docker.elastic.co/apm/apm-server
+    tag: 7.5.1
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 8200
+
+kibana:
+  enabled: true
+  name: kibana
+  image:
+    repository: kibana
+    tag: 7.5.1
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 5601
+  persistentVolume:
+    storageClass: microk8s-hostpath
+    size: 20Mi
+

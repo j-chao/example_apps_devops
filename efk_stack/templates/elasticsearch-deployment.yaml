@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.elasticsearch.name }}
+  labels:
+    {{- include "oht-devops.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: {{ .Values.elasticsearch.name }}
+      {{- include "oht-devops.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.elasticsearch.name }}
+        {{- include "oht-devops.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccounts.name }}
+      containers:
+        - name: {{ .Values.elasticsearch.name  }}
+          image: "{{ .Values.elasticsearch.image.repository }}:{{ .Values.elasticsearch.image.tag }}"
+          imagePullPolicy: {{ .Values.elasticsearch.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 9200
+              protocol: TCP
+          #livenessProbe:
+            #httpGet:
+              #path: /
+              #port: http
+          #readinessProbe:
+            #httpGet:
+              #path: /
+              #port: http
+          resources:
+            {{- toYaml .Values.elasticsearch.resources | nindent 12 }}
+          {{- if .Values.elasticsearch.singleNode }}
+          env:
+          - name: discovery.type
+            value: single-node
+          {{- end}}
+          volumeMounts:
+          - name: elasticsearch-data
+            mountPath: /usr/share/elasticsearch/data
+          - name: elasticsearch-config
+            mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+            subPath: elasticsearch.yml
+      volumes:
+      - name: elasticsearch-data
+        persistentVolumeClaim:
+          claimName: {{ .Values.elasticsearch.name }}-pv
+      - name: elasticsearch-config
+        configMap:
+          name: {{ .Release.Name }}-configmap
+          items:
+            - key: elasticsearch.yml
+              path: elasticsearch.yml
+

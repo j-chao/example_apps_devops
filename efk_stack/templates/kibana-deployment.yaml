@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.kibana.name }}
+  labels:
+    {{- include "oht-devops.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: {{ .Values.kibana.name }}
+      {{- include "oht-devops.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.kibana.name }}
+        {{- include "oht-devops.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccounts.Name }}
+      containers:
+        - name: {{ .Values.kibana.name  }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.kibana.image.repository }}:{{ .Values.kibana.image.tag }}"
+          imagePullPolicy: {{ .Values.kibana.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 5601
+              protocol: TCP
+          #livenessProbe:
+            #httpGet:
+              #path: /
+              #port: http
+          #readinessProbe:
+            #httpGet:
+              #path: /
+              #port: http
+          resources: {{- toYaml .Values.kibana.resources | nindent 12 }}
+          volumeMounts:
+          - name: kibana-data
+            mountPath: /usr/share/kibana/data
+          - name: kibana-config
+            mountPath: /usr/share/kibana/config
+      volumes:
+      - name: kibana-data
+        persistentVolumeClaim:
+          claimName: {{ .Values.kibana.name }}-pv
+      - name: kibana-config
+        configMap:
+          name: {{ .Release.Name }}-configmap
+          items:
+            - key: kibana.yml
+              path: kibana.yml
+
