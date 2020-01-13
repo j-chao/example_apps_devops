@@ -1,0 +1,244 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configmap
+data:
+  kibana.yml: |-
+    server.host: "0"
+    server.port: 5601
+    server.name: "kibana.default.svc"
+    elasticsearch.hosts: ["http://elasticsearch.default.svc:9200"]   
+    elasticsearch.username: "kibana"
+    elasticsearch.password: "seO7s5bIbsEZPSpGhejK"
+
+  apm-server.yml: |-
+    apm-server:
+      host: "0.0.0.0:8200"
+      kibana:
+        enabled: true
+        host: "kibana.default.svc:5601"
+        username: "elastic" 
+        password: "GINVFQ0Z7m2v0n7mR24F"
+    output.elasticsearch:
+      hosts: ["http://elasticsearch.default.svc:9200"]
+      username: "elastic" 
+      password: "GINVFQ0Z7m2v0n7mR24F"
+
+    monitoring.enabled: true
+    monitoring.elasticsearch:
+      hosts: ["http://elasticsearch.default.svc:9200"]
+
+  fluent.conf: |-
+    <system>
+      log_level debug
+    </system>
+
+    <source>
+      @type monitor_agent
+      bind 0.0.0.0
+      port 24220
+    </source>
+
+    #<source>
+      #@type ping_message
+      #@label @heartbeat_events
+      #tag      ping
+      #interval 10
+      #data     "this is ping message"
+      #<inject>
+        #hostname_key "foster-api.ocp-elr-core-nonprod.optum.com"     # {"host": "my.hostname.example.com"}
+        #time_key     time
+        #time_type    string
+        #time_format  "%Y-%m-%d %H:%M:%S" # {"time": "2017-02-01 14:50:38"}
+        #timezone     "localtime yes" # or "localtime yes" / "localtime no" (UTC), ...
+      #</inject>
+    #</source>
+
+    <source>
+      @type http
+      bind 0.0.0.0
+      port 9880
+      add_http_headers true
+    </source>
+
+    <source>
+      @type forward
+      bind 0.0.0.0
+      port 24224
+      tag forward
+    </source>
+
+    <match fluentbit>
+      @type rewrite_tag_filter
+      <rule>
+        key HTTP_FLUENT_TAG
+        pattern /^(.*)$/
+        tag $1
+      </rule>
+    </match>
+
+    #<filter logs>
+      #@type record_transformer
+      #enable_ruby
+      #<record>
+        #new_tag ${record["log"].gsub(/.*/,/trace.id=(.*\d)\,/)}
+        #new_tag db2b9a1c9a72a7eef3fe451a64e72e3a
+      #</record>
+    #</filter>
+
+    <match metrics>
+      @type elasticsearch
+      host elasticsearch.default.svc
+      port 9200
+      user elastic
+      password GINVFQ0Z7m2v0n7mR24F
+      index_name metrics
+      type_name metrics
+      emit_error_for_missing_id true
+      logstash_format true
+      logstash_prefix metrics
+      <buffer>
+        flush_thread_count 8
+      </buffer>
+    </match>
+
+    <match logs>
+      @type elasticsearch
+      host elasticsearch.default.svc
+      port 9200
+      user elastic
+      password GINVFQ0Z7m2v0n7mR24F
+      index_name logs
+      type_name logs
+      emit_error_for_missing_id true
+      logstash_format true
+      logstash_prefix logs
+      <buffer>
+        flush_thread_count 8
+      </buffer>
+      <parse>
+        @type regexp
+        expression (?<first>.{4}).*trace\.id\=(?<trace_id>.+),
+        time_key log_time
+      </parse>
+    </match>
+
+    #<match **>
+      #@type splunk_hec
+      #hec_host 12.34.56.78
+      #hec_port 8088
+      #hec_token 00000000-0000-0000-0000-000000000000
+    #</match>
+
+    #<label @heartbeat_events>
+      ##=> tag: 'ping'
+      ##   message: {'data' => 'your.hostname.local'}
+      #<match ping>
+        ## send hosts w/ ping_message_checker
+        #@type stdout
+      #</match>
+    #</label>
+
+    <match forward>
+      @type stdout
+    </match>
+
+
+  elasticsearch.yml: |-
+    # ======================== Elasticsearch Configuration =========================
+    #
+    # NOTE: Elasticsearch comes with reasonable defaults for most settings.
+    #       Before you set out to tweak and tune the configuration, make sure you
+    #       understand what are you trying to accomplish and the consequences.
+    #
+    # The primary way of configuring a node is via this file. This template lists
+    # the most important settings you may want to configure for a production cluster.
+    #
+    # Please consult the documentation for further information on configuration options:
+    # https://www.elastic.co/guide/en/elasticsearch/reference/index.html
+    #
+    # ---------------------------------- Cluster -----------------------------------
+    #
+    # Use a descriptive name for your cluster:
+    #
+    cluster.name: cumulus-elastic-cluster
+    #
+    # ------------------------------------ Node ------------------------------------
+    #
+    # Use a descriptive name for the node:
+    #
+    #node.name: node-1
+    #
+    # Add custom attributes to the node:
+    #
+    #node.attr.rack: r1
+    #
+    # ----------------------------------- Paths ------------------------------------
+    #
+    # Path to directory where to store the data (separate multiple locations by comma):
+    #
+    # ${path.data}
+    #
+    # Path to log files:
+    #
+    # ${path.logs}
+    #
+    # ----------------------------------- Memory -----------------------------------
+    #
+    # Lock the memory on startup:
+    #
+    #bootstrap.memory_lock: true
+    #
+    # Make sure that the heap size is set to about half the memory available
+    # on the system and that the owner of the process is allowed to use this
+    # limit.
+    #
+    # Elasticsearch performs poorly when the system is swapping the memory.
+    #
+    # ---------------------------------- Network -----------------------------------
+    #
+    # Set the bind address to a specific IP (IPv4 or IPv6):
+    #
+    network.host: 0.0.0.0
+    #
+    # Set a custom port for HTTP:
+    #
+    http.port: 9200
+    #
+    # For more information, consult the network module documentation.
+    #
+    # --------------------------------- Discovery ----------------------------------
+    #
+    # Pass an initial list of hosts to perform discovery when this node is started:
+    # The default list of hosts is ["127.0.0.1", "[::1]"]
+    #
+    #discovery.seed_hosts: ["host1", "host2"]
+    #
+    # Bootstrap the cluster using an initial set of master-eligible nodes:
+    #
+    #cluster.initial_master_nodes: ["node-1", "node-2"]
+    #
+    # For more information, consult the discovery and cluster formation module documentation.
+    #
+    # ---------------------------------- Gateway -----------------------------------
+    #
+    # Block initial recovery after a full cluster restart until N nodes are started:
+    #
+    #gateway.recover_after_nodes: 3
+    #
+    # For more information, consult the gateway module documentation.
+    #
+    # ---------------------------------- Various -----------------------------------
+    #
+    # Require explicit names when deleting indices:
+    #
+    #action.destructive_requires_name: true
+    # ---------------------------------- Security ----------------------------------
+    xpack.security.enabled: false
+    xpack.security.http.ssl.enabled: false
+    xpack.security.authc:
+      anonymous:
+        username: anonymous_user 
+        roles: kibana_user
+        authz_exception: true 
+

@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.fluentd.name }}
+  labels:
+    {{- include "oht-devops.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: {{ .Values.fluentd.name }}
+      {{- include "oht-devops.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.fluentd.name }}
+        {{- include "oht-devops.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccounts.name }}
+      containers:
+        - name: {{ .Values.fluentd.name  }}
+          image: "{{ .Values.fluentd.image.repository }}:{{ .Values.fluentd.image.tag }}"
+          imagePullPolicy: {{ .Values.fluentd.image.pullPolicy }}
+          command: ["fluentd", "-c", "/fluentd/etc/fluent.conf"]
+          ports:
+            - name: http
+              containerPort: 9880
+              protocol: TCP
+            - name: tcp
+              containerPort: 24224
+              protocol: TCP
+          #livenessProbe:
+            #httpGet:
+              #path: /
+              #port: http
+          #readinessProbe:
+            #httpGet:
+              #path: /
+              #port: http
+          resources:
+            {{- toYaml .Values.fluentd.resources | nindent 12 }}
+          volumeMounts:
+          - name: fluentd-log
+            mountPath: /fluentd/log
+          - name: fluentd-config
+            mountPath: /fluentd/etc
+      volumes:
+      - name: fluentd-log
+        emptyDir: {}
+      - name: fluentd-config
+        configMap:
+          name: {{ .Release.Name }}-configmap
+          items:
+            - key: fluent.conf
+              path: fluent.conf

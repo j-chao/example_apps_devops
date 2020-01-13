@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.apmServer.name }}
+  labels:
+    {{- include "oht-devops.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: {{ .Values.apmServer.name }}
+      {{- include "oht-devops.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.apmServer.name }}
+        {{- include "oht-devops.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccounts.name }}
+      containers:
+        - name: {{ .Values.apmServer.name }}
+          image: "{{ .Values.apmServer.image.repository }}:{{ .Values.apmServer.image.tag }}"
+          imagePullPolicy: {{ .Values.apmServer.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8200
+              protocol: TCP
+          #livenessProbe:
+            #httpGet:
+              #path: /
+              #port: http
+          #readinessProbe:
+            #httpGet:
+              #path: /
+              #port: http
+          resources:
+            {{- toYaml .Values.apmServer.resources | nindent 12 }}
+          volumeMounts:
+          - name: apm-server-config
+            mountPath: /usr/share/apm-server/apm-server.yml
+            subPath: apm-server.yml
+      volumes:
+      - name: apm-server-config
+        configMap:
+          name: {{ .Release.Name }}-configmap
+
+
