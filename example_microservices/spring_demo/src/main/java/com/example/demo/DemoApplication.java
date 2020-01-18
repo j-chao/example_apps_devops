@@ -15,7 +15,7 @@ public class DemoApplication {
   }
 
   @Bean
-  public CommandLineRunner demo(PatientRepository repository) {
+  public CommandLineRunner demoPatients(PatientRepository repository) {
     return (args) -> {
       // save a few patients to the database
       repository.save(new Patient("Justin", "Chao"));
