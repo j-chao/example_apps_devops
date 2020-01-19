@@ -17,6 +17,7 @@
 	<properties>
 		<java.version>11</java.version>
 		<flyway.version>6.1.4</flyway.version>
+		<modelmapper.version>2.3.6</modelmapper.version>
 	</properties>
 
 	<dependencies>
@@ -38,11 +39,16 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.modelmapper</groupId>
+			<artifactId>modelmapper</artifactId>
+			<version>${modelmapper.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
 			<version>${flyway.version}</version>
 		</dependency>
-
 
 		<dependency>
 			<groupId>org.postgresql</groupId>
