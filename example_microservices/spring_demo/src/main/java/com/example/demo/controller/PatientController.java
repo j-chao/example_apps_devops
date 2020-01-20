@@ -2,26 +2,36 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Patient;
 import com.example.demo.model.dto.PatientDTO;
+import com.example.demo.model.mapper.PatientMapper;
 import com.example.demo.service.PatientService;
-import com.example.demo.util.DTO;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 
 @RestController
+@RequiredArgsConstructor
 public class PatientController {
 
-  @Autowired private PatientService patientService;
+  @Autowired PatientService patientService;
+  private final PatientMapper patientMapper;
 
-  @GetMapping("/patients")
-  public List<Patient> retrieveAllPatients() {
+  @GetMapping(
+      path = "/patients",
+      produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  private Flux<Patient> getAllPatients() {
     return patientService.getAllPatients();
   }
 
-  @PostMapping(path = "/patient", consumes = "application/json", produces = "application/json")
-  public void addPatient(@DTO(PatientDTO.class) Patient patient) {
+  @PostMapping(
+      path = "/patient",
+      produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  public void addPatient(@RequestBody PatientDTO patientDTO) {
+    Patient patient = patientMapper.toPatient(patientDTO);
     patientService.addPatient(patient);
   }
 }
