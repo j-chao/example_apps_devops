@@ -161,7 +161,7 @@ data:
     #
     # Use a descriptive name for your cluster:
     #
-    cluster.name: cumulus-elastic-cluster
+    cluster.name: my-elastic-cluster
     #
     # ------------------------------------ Node ------------------------------------
     #
