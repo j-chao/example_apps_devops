@@ -23,17 +23,18 @@ public class PatientHandler {
 
   public Mono<ServerResponse> findAll(ServerRequest request) {
     return ServerResponse.ok()
-        .contentType(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.TEXT_EVENT_STREAM)
         .body(patientService.getAllPatients(), PatientDTO.class);
   }
 
   public Mono<ServerResponse> createPatient(ServerRequest request) {
     Mono<Patient> patientMono = request.bodyToMono(PatientDTO.class).map(patientMapper::toPatient);
-    return patientMono.flatMap(
-        patient ->
-            ServerResponse.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(patientService.addPatient(patient), Patient.class))
-                .doOnRequest(patient1 -> kafkaProducer.sendToKafka(PATIENT_TOPIC, patient1, patient1));
+    return patientMono
+        .flatMap(
+            patient ->
+                ServerResponse.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(patientService.addPatient(patient), Patient.class))
+        .doOnRequest(patient1 -> kafkaProducer.sendToKafka(PATIENT_TOPIC, patient1, patient1));
   }
 }
