@@ -9,7 +9,7 @@ data:
     server.name: "kibana.default.svc"
     elasticsearch.hosts: ["http://elasticsearch.default.svc:9200"]   
     elasticsearch.username: "kibana"
-    elasticsearch.password: "***REMOVED***"
+    elasticsearch.password: "seO7s5bIbsEZPSpGhejK"
 
   apm-server.yml: |-
     apm-server:
@@ -18,11 +18,11 @@ data:
         enabled: true
         host: "kibana.default.svc:5601"
         username: "elastic" 
-        password: "***REMOVED***"
+        password: "GINVFQ0Z7m2v0n7mR24F"
     output.elasticsearch:
       hosts: ["http://elasticsearch.default.svc:9200"]
       username: "elastic" 
-      password: "***REMOVED***"
+      password: "GINVFQ0Z7m2v0n7mR24F"
 
     monitoring.enabled: true
     monitoring.elasticsearch:
@@ -46,7 +46,7 @@ data:
       #interval 10
       #data     "this is ping message"
       #<inject>
-        #hostname_key "***REMOVED***"     # {"host": "my.hostname.example.com"}
+        #hostname_key "foster-api.ocp-elr-core-nonprod.optum.com"     # {"host": "my.hostname.example.com"}
         #time_key     time
         #time_type    string
         #time_format  "%Y-%m-%d %H:%M:%S" # {"time": "2017-02-01 14:50:38"}
@@ -91,7 +91,7 @@ data:
       host elasticsearch.default.svc
       port 9200
       user elastic
-      password ***REMOVED***
+      password GINVFQ0Z7m2v0n7mR24F
       index_name metrics
       type_name metrics
       emit_error_for_missing_id true
@@ -107,7 +107,7 @@ data:
       host elasticsearch.default.svc
       port 9200
       user elastic
-      password ***REMOVED***
+      password GINVFQ0Z7m2v0n7mR24F
       index_name logs
       type_name logs
       emit_error_for_missing_id true

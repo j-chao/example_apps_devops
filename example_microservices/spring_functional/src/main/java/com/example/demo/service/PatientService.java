@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.model.Patient;
 import com.example.demo.persistence.PatientRepository;
 import com.example.demo.util.KafkaProducer;
+import java.time.Duration;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -23,7 +24,7 @@ public class PatientService {
   @Autowired private PatientRepository patientRepository;
 
   public Flux<Patient> getAllPatients() {
-    return patientRepository.findAll();
+    return patientRepository.findAll().delayElements(Duration.ofMillis(1000));
   }
 
   public Flux<SenderResult<Object>> addPatient(Patient patient) {
