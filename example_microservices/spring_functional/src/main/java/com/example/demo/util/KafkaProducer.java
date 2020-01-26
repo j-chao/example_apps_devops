@@ -48,9 +48,7 @@ public class KafkaProducer {
         .doOnError(e -> log.error("Failed to send to Kafka, terminating.", e))
         .doOnNext(
             r -> {
-              String id = r.correlationMetadata().toString();
               RecordMetadata metadata = r.recordMetadata();
-              System.out.println("Successfully sent id: " + id);
               System.out.printf(
                   "Message %s sent successfully, topic-partition=%s-%d offset=%d timestamp=%s\n",
                   r.correlationMetadata(),
