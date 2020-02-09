@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.postgres.name }}
+  labels:
+    {{- include "demo_microservices.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "demo_microservices.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "demo_microservices.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Values.postgres.name }}
+          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+          imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
+          args: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
+          env:
+          - name: POSTGRES_PASSWORD
+            value: password
+          volumeMounts:
+          - name: postgres-config
+            mountPath: /etc/postgresql/postgresql.conf
+            subPath: postgresql.conf
+          ports:
+            - name: http
+              containerPort: 5432
+              protocol: TCP
+      volumes:
+        - name: postgres-config
+          configMap:
+            name: postgres-configmap

@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-import reactor.kafka.sender.SenderResult;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -27,10 +27,9 @@ public class PatientService {
     return patientRepository.findAll().delayElements(Duration.ofMillis(1000));
   }
 
-  public Flux<SenderResult<Object>> addPatient(Patient patient) {
+  public Mono<Patient> addPatient(Patient patient) {
     return patientRepository
         .save(patient)
-        .thenMany(kafkaProducer.sendToKafka(PATIENT_TOPIC, patient, patient))
         .doOnError(e -> log.error("Failed to save patient.", e));
   }
 }

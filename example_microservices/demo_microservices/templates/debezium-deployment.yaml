@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.debezium.name }}
+  labels:
+    {{- include "demo_microservices.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "demo_microservices.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "demo_microservices.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Values.debezium.name }}
+          image: "{{ .Values.debezium.image.repository }}:{{ .Values.debezium.image.tag }}"
+          imagePullPolicy: {{ .Values.debezium.image.pullPolicy }}
+          env:
+          - name: GROUP_ID
+            value: "1"
+          - name: CONFIG_STORAGE_TOPIC
+            value: my-connect-configs
+          - name: OFFSET_STORAGE_TOPIC
+            value: my-connect-offsets
+          - name: ADVERTISED_HOST_NAME
+            value: debezium-connect
+          - name: BOOTSTRAP_SERVERS
+            value: kafka-cluster-kafka-bootstrap:9092
+          ports:
+            - name: http
+              containerPort: {{ .Values.debezium.service.port }}
+              protocol: TCP

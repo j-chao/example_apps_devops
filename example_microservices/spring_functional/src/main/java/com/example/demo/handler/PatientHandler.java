@@ -3,6 +3,7 @@ package com.example.demo.handler;
 import com.example.demo.model.Patient;
 import com.example.demo.model.dto.PatientDTO;
 import com.example.demo.model.mapper.PatientMapper;
+import com.example.demo.persistence.PatientRepository;
 import com.example.demo.service.PatientService;
 import com.example.demo.util.KafkaProducer;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class PatientHandler {
   @Autowired PatientService patientService;
+  @Autowired PatientRepository patientRepository;
   private final PatientMapper patientMapper;
   private static final String PATIENT_TOPIC = "demo-topic";
   private KafkaProducer kafkaProducer = new KafkaProducer("172.28.33.50:32110");
@@ -29,12 +31,10 @@ public class PatientHandler {
 
   public Mono<ServerResponse> createPatient(ServerRequest request) {
     Mono<Patient> patientMono = request.bodyToMono(PatientDTO.class).map(patientMapper::toPatient);
-    return patientMono
-        .flatMap(
-            patient ->
-                ServerResponse.ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(patientService.addPatient(patient), Patient.class))
-        .doOnRequest(patient1 -> kafkaProducer.sendToKafka(PATIENT_TOPIC, patient1, patient1));
+    return patientMono.flatMap(
+        patient ->
+            ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(patientService.addPatient(patient), Patient.class));
   }
 }
