@@ -8,24 +8,30 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
+      app: {{ .Values.postgres.name }}
       {{- include "demo_microservices.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
+        app: {{ .Values.postgres.name }}
         {{- include "demo_microservices.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: {{ .Values.postgres.name }}
           image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
           imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
-          args: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
+          args: 
+          - "postgres"
+          - "-c"
+          - "config_file=/etc/postgresql/postgresql.conf"
+          - "-c"
+          - "hba_file=/etc/postgresql/pg_hba.conf"
           env:
           - name: POSTGRES_PASSWORD
             value: password
           volumeMounts:
           - name: postgres-config
-            mountPath: /etc/postgresql/postgresql.conf
-            subPath: postgresql.conf
+            mountPath: /etc/postgresql
           ports:
             - name: http
               containerPort: 5432
@@ -34,3 +40,8 @@ spec:
         - name: postgres-config
           configMap:
             name: postgres-configmap
+            items:
+            - key: postgresql.conf
+              path: postgresql.conf
+            - key: pg_hba.conf
+              path: pg_hba.conf

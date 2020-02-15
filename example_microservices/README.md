@@ -20,6 +20,12 @@ Consume from Kafka topic with kafkacat
 $ kafkacat -C -b 172.28.33.50:32110 -t demo-topic
 ```
 
+### Kubernetes Environment
+Deploy postgres and debezium with Helm:
+```sh
+$ helm install demo demo_microservices/
+```
+
 
 ### Kafka with Strimzi
 Create a namespace for the Kafka cluster.

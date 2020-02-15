@@ -8,10 +8,12 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
+      app: {{ .Values.debezium.name }}
       {{- include "demo_microservices.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
+        app: {{ .Values.debezium.name }}
         {{- include "demo_microservices.selectorLabels" . | nindent 8 }}
     spec:
       containers:
@@ -29,6 +31,8 @@ spec:
             value: debezium-connect
           - name: BOOTSTRAP_SERVERS
             value: kafka-cluster-kafka-bootstrap:9092
+          - name: LOG_LEVEL
+            value: INFO
           ports:
             - name: http
               containerPort: {{ .Values.debezium.service.port }}

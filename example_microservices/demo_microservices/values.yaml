@@ -29,3 +29,14 @@ debezium:
     type: ClusterIP
     port: 8083
 
+kafkaConnect:
+  enabled: disabled
+  name: kafka-connect
+  image:
+    repository: confluentinc/cp-kafka-connect
+    tag: 5.4.0
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 8083
+

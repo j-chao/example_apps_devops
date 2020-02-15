@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.kafkaConnect.name }}
+  labels:
+    {{- include "demo_microservices.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.kafkaConnect.name }}
+      {{- include "demo_microservices.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.kafkaConnect.name }}
+        {{- include "demo_microservices.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Values.kafkaConnect.name }}
+          image: "{{ .Values.kafkaConnect.image.repository }}:{{ .Values.kafkaConnect.image.tag }}"
+          imagePullPolicy: {{ .Values.kafkaConnect.image.pullPolicy }}
+          env:
+          - name: CONNECT_BOOTSTRAP_SERVERS
+            value: "kafka-cluster-kafka-bootstrap:9092"
+          - name: CONNECT_REST_PORT
+            value: "8083"
+          - name: CONNECT_GROUP_ID
+            value: "quickstart"
+          - name: CONNECT_CONFIG_STORAGE_TOPIC
+            value: "quickstart-config"
+          - name: CONNECT_CONFIG_REPLICATION_FACTOR
+            value: "1"
+          - name: CONNECT_OFFSET_STORAGE_TOPIC
+            value: "quickstart-offsets"
+          - name: CONNECT_OFFSET_REPLICATION_FACTOR
+            value: "1"
+          - name: CONNECT_STATUS_STORAGE_TOPIC
+            value: "quickstart-status"
+          - name: CONNECT_STATUS_REPLICATION_FACTOR
+            value: "1"
+          - name: CONNECT_KEY_CONVERTER
+            value: "org.apache.kafka.connect.json.JsonConverter"
+          - name: CONNECT_VALUE_CONVERTER
+            value: "org.apache.kafka.connect.json.JsonConverter"
+          - name: CONNECT_INTERNAL_KEY_CONVERTER
+            value: "org.apache.kafka.connect.json.JsonConverter"
+          - name: CONNECT_INTERNAL_VALUE_CONVERTER
+            value: "org.apache.kafka.connect.json.JsonConverter"
+          - name: CONNECT_REST_ADVERTISED_HOST_NAME
+            value: "kafka-connect.default.svc"
+          - name: CONNECT_PLUGIN_PATH
+            value: "/usr/share/java"
+          ports:
+            - name: http
+              containerPort: {{ .Values.kafkaConnect.service.port }}
+              protocol: TCP

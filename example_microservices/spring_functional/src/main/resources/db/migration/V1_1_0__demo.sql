@@ -4,3 +4,4 @@ CREATE TABLE patients (
    first_name VARCHAR NOT NULL,
    last_name VARCHAR NOT NULL
 );
+
