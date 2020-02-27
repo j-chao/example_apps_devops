@@ -1,5 +1,4 @@
-# Template values
-
+# Template values 
 serviceAccounts:
   create: true
   name: kube-state-metrics
@@ -23,7 +22,7 @@ elasticsearch:
   name: elasticsearch
   image:
     repository: elasticsearch
-    tag: 7.5.1
+    tag: 7.6.0
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
@@ -38,10 +37,11 @@ apmServer:
   name: apm-server
   image:
     repository: docker.elastic.co/apm/apm-server
-    tag: 7.5.1
+    tag: 7.6.0
     pullPolicy: Always
   service:
-    type: ClusterIP
+    type: NodePort
+    nodePort: 32655
     port: 8200
 
 kibana:
@@ -49,7 +49,7 @@ kibana:
   name: kibana
   image:
     repository: kibana
-    tag: 7.5.1
+    tag: 7.6.0
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
