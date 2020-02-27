@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 @Data
 public class PatientService {
   private static final Logger log = LoggerFactory.getLogger(PatientService.class.getName());
-  private static final String PATIENT_TOPIC = "demo-topic";
+  private static final String PATIENT_TOPIC = "patient-topic";
   private KafkaProducer kafkaProducer = new KafkaProducer("172.28.33.50:32110");
 
   @Autowired private PatientRepository patientRepository;

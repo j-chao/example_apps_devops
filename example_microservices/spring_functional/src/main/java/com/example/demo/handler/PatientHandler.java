@@ -20,7 +20,7 @@ public class PatientHandler {
   @Autowired PatientService patientService;
   @Autowired PatientRepository patientRepository;
   private final PatientMapper patientMapper;
-  private static final String PATIENT_TOPIC = "demo-topic";
+  private static final String PATIENT_TOPIC = "patient-topic";
   private KafkaProducer kafkaProducer = new KafkaProducer("172.28.33.50:32110");
 
   public Mono<ServerResponse> findAll(ServerRequest request) {

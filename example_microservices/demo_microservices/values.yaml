@@ -4,6 +4,18 @@
 
 replicaCount: 1
 
+patient_ms:
+  enabled: true
+  name: patient-microservice
+  image:
+    repository: localhost:32000/patient_ms
+    tag: latest
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 8080
+
+
 postgres:
   enabled: true
   name: postgres
@@ -12,8 +24,9 @@ postgres:
     tag: 12.1
     pullPolicy: Always
   service:
-    type: ClusterIP
+    type: NodePort
     port: 5432
+    nodePort: 32650
   persistentVolume:
     storageClass: microk8s-hostpath
     size: 20Mi

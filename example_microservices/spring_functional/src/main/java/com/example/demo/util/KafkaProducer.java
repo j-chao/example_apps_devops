@@ -42,7 +42,7 @@ public class KafkaProducer {
 
     SenderRecord<Integer, String, Object> message =
         SenderRecord.create(
-            new ProducerRecord<>("demo-topic", payload.toString()), correlationMetadata);
+            new ProducerRecord<>("patient-topic", payload.toString()), correlationMetadata);
     return sender
         .send(Flux.just(message))
         .doOnError(e -> log.error("Failed to send to Kafka, terminating.", e))

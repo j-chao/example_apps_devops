@@ -9,6 +9,7 @@ spec:
   ports:
     - port: {{ .Values.postgres.service.port }}
       targetPort: http
+      nodePort: {{ .Values.postgres.service.nodePort }}
       protocol: TCP
       name: http
   selector:

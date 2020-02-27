@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.patient_ms.name }}
+  labels:
+    {{- include "demo_microservices.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.patient_ms.name }}
+      {{- include "demo_microservices.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.patient_ms.name }}
+        {{- include "demo_microservices.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Values.patient_ms.name }}
+          image: "{{ .Values.patient_ms.image.repository }}:{{ .Values.patient_ms.image.tag }}"
+          imagePullPolicy: {{ .Values.patient_ms.image.pullPolicy }}
+          command: ["java", 
+            "-javaagent:/tmp/elastic-apm-agent-1.13.0.jar",
+            "-jar", "foster-api-0.0.1-SNAPSHOT.jar"
+          ]
+          ports:
+            - name: http
+              containerPort: {{ .Values.patient_ms.service.port }}
+              protocol: TCP
