@@ -7,8 +7,14 @@ metadata:
 spec:
   accessModes:
   - ReadWriteOnce
-  storageClassName: "{{ .Values.kibana.persistentVolume.storageClass }}"
+{{ if eq .Values.environment "local" }}
+  storageClassName: "{{ .Values.kibana.persistentVolume.local.storageClass }}"
   resources:
     requests:
-      storage: "{{ .Values.kibana.persistentVolume.size }}"
-
+      storage: "{{ .Values.kibana.persistentVolume.local.size }}"
+{{ else }}
+  storageClassName: "{{ .Values.kibana.persistentVolume.azure.storageClass }}"
+  resources:
+    requests:
+      storage: "{{ .Values.kibana.persistentVolume.azure.size }}"
+{{ end }}

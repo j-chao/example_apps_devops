@@ -28,8 +28,12 @@ postgres:
     port: 5432
     nodePort: 32650
   persistentVolume:
-    storageClass: microk8s-hostpath
-    size: 20Mi
+    local:
+      storageClass: microk8s-hostpath
+      size: 20Mi
+    azure:
+      storageClass: default
+      size: 2Gi
 
 debezium:
   enabled: true

@@ -1,4 +1,7 @@
 # Template values 
+
+environment: azure
+
 serviceAccounts:
   create: true
   name: kube-state-metrics
@@ -14,8 +17,12 @@ fluentd:
     type: ClusterIP
     port: 24224
   persistentVolume:
-    storageClass: microk8s-hostpath
-    size: 20Mi
+    local:
+      storageClass: microk8s-hostpath
+      size: 20Mi
+    azure:
+      storageClass: default
+      size: 5Gi
 
 elasticsearch:
   enabled: true
@@ -29,8 +36,12 @@ elasticsearch:
     port: 9200
   singleNode: true
   persistentVolume:
-    storageClass: microk8s-hostpath
-    size: 20Mi
+    local:
+      storageClass: microk8s-hostpath
+      size: 20Mi
+    azure:
+      storageClass: default
+      size: 5Gi
 
 apmServer:
   enabled: true
@@ -55,6 +66,10 @@ kibana:
     type: ClusterIP
     port: 5601
   persistentVolume:
-    storageClass: microk8s-hostpath
-    size: 20Mi
+    local:
+      storageClass: microk8s-hostpath
+      size: 20Mi
+    azure:
+      storageClass: default
+      size: 5Gi
 

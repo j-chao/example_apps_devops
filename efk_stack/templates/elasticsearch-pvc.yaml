@@ -7,8 +7,14 @@ metadata:
 spec:
   accessModes:
   - ReadWriteOnce
-  storageClassName: "{{ .Values.elasticsearch.persistentVolume.storageClass }}"
+{{ if eq .Values.environment "local" }}
+  storageClassName: "{{ .Values.elasticsearch.persistentVolume.local.storageClass }}"
   resources:
     requests:
-      storage: "{{ .Values.elasticsearch.persistentVolume.size }}"
-
+      storage: "{{ .Values.elasticsearch.persistentVolume.local.size }}"
+{{ else }}
+  storageClassName: "{{ .Values.elasticsearch.persistentVolume.azure.storageClass }}"
+  resources:
+    requests:
+      storage: "{{ .Values.elasticsearch.persistentVolume.azure.size }}"
+{{ end }}
