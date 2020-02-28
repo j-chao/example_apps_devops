@@ -20,10 +20,13 @@ Consume from Kafka topic with kafkacat
 $ kafkacat -C -b 172.28.33.50:32110 -t demo-topic
 ```
 
-### Kubernetes Environment
+### Azure Environment
+Deploy AKS infrastructure using terraform scripts found in k8s\_tf\_scripts/ .
+
+
 Deploy postgres and debezium with Helm:
 ```sh
-$ helm install demo demo_microservices/
+$ helm install cdc helm_charts/
 ```
 
 
