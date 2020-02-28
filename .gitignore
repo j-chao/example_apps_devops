@@ -6,3 +6,4 @@
 **.next/
 *.terraform
 *.backup
+*.log
