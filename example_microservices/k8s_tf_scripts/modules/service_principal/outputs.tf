@@ -1,15 +1,15 @@
-output "k8s_sp_id" {
-  value = "${azuread_service_principal.k8s_sp.id}"
+output "id" {
+  value = "${azuread_service_principal.demo.id}"
 }
 
-output "k8s_sp_name" {
-  value = "${azuread_service_principal.k8s_sp.display_name}"
+output "name" {
+  value = "${azuread_service_principal.demo.display_name}"
 }
 
-output "k8s_sp_appid" {
-  value = "${azuread_application.k8s.application_id}"
+output "app_id" {
+  value = "${azuread_application.demo.application_id}"
 }
 
-output "k8s_sp_password" {
-  value = "${random_string.k8s_sp_password.result}"
+output "password" {
+  value = "${random_password.demo.result}"
 }
