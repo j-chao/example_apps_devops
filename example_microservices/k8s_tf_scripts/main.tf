@@ -40,7 +40,7 @@ module "k8s-sp" {
 resource "azurerm_role_assignment" "k8s-sp" {
   scope                = "${data.azurerm_subscription.oht-aes-nonprod.id}/resourceGroups/${azurerm_resource_group.demo.name}"
   role_definition_name = "Contributor"
-  principal_id         = "${module.k8s-sp.k8s_sp_id}"
+  principal_id         = "${module.k8s-sp.k8s_sp_appid}"
 }
 
 ######################
@@ -55,23 +55,6 @@ module "aks" {
   client_secret       = "${module.k8s-sp.k8s_sp_password}"
   prefix              = "${azurerm_resource_group.demo.name}"
 }
-
-
-
-#module "aks-demo" {
-  #source = "modules/aks"
-
-  #k8s_resource_group = "${azurerm_resource_group.k8s.name}"
-  #k8s_name = "cumulus-k8s"
-  #k8s_subnet_id = "${module.k8s-network.subnet["id"]}"
-  #vm_name = "worker-2"
-  #vm_location = "eastus2"
-  #vm_zone = 3
-  #vm_size = "Standard_B2ms"
-  #private_ip = "10.240.0.22"
-  #lb_controller_address_pool_id = "${module.k8s-network.lb_controller_address_pool_id}"
-  #create_controller_pool = 0
-#}
 
 
 ######################

@@ -12,7 +12,7 @@ spec:
   resources:
     requests:
       storage: "{{ .Values.kibana.persistentVolume.local.size }}"
-{{ else }}
+{{ else if eq .Values.environment "azure" }}
   storageClassName: "{{ .Values.kibana.persistentVolume.azure.storageClass }}"
   resources:
     requests:

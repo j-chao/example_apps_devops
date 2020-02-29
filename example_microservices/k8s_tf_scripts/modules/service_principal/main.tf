@@ -16,9 +16,9 @@ resource "random_string" "k8s_sp_password" {
 }
 
 resource "azuread_service_principal_password" "k8s_sp_password" {
-  service_principal_id = azuread_service_principal.k8s_sp.id
-  value                = random_string.k8s_sp_password.result
-  end_date             = timeadd(timestamp(), "8760h")
+  service_principal_id = "${azuread_service_principal.k8s_sp.id}"
+  value                = "${random_string.k8s_sp_password.result}"
+  end_date             = "${timeadd(timestamp(), "8760h")}"
 
   # This stops be 'end_date' changing on each run and causing a new password to be set
   # to get the date to change here you would have to manually taint this resource...

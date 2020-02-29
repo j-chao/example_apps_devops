@@ -6,13 +6,22 @@ metadata:
     app: {{ .Values.apmServer.name }}
     {{- include "oht-devops.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.apmServer.service.type }}
+{{ if eq .Values.environment "local" }}
+  type: {{ .Values.apmServer.service.local.type }}
   ports:
-    - port: {{ .Values.apmServer.service.port }}
+    - port: {{ .Values.apmServer.service.local.port }}
       targetPort: http
-      nodePort: {{ .Values.apmServer.service.nodePort }}
+      nodePort: {{ .Values.apmServer.service.local.nodePort }}
       protocol: TCP
       name: http
+{{ else if eq .Values.environment "azure" }}
+  type: {{ .Values.apmServer.service.azure.type }}
+  ports:
+    - port: {{ .Values.apmServer.service.azure.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+{{ end }}
   selector:
     app: {{ .Values.apmServer.name }}
     {{- include "oht-devops.selectorLabels" . | nindent 4 }} 

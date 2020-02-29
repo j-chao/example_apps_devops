@@ -22,6 +22,10 @@ $ kafkacat -C -b 172.28.33.50:32110 -t demo-topic
 
 ### Azure Environment
 Deploy AKS infrastructure using terraform scripts found in k8s\_tf\_scripts/ .
+```sh
+$ terraform init
+$ terraform apply
+```
 
 
 Deploy postgres and debezium with Helm:

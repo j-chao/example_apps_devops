@@ -5,5 +5,8 @@
 **node_modules/
 **.next/
 *.terraform
+*.tfstate
 *.backup
 *.log
+private_ssh_key
+

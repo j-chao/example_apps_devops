@@ -12,7 +12,7 @@ spec:
   resources:
     requests:
       storage: "{{ .Values.elasticsearch.persistentVolume.local.size }}"
-{{ else }}
+{{ else if eq .Values.environment "azure" }}
   storageClassName: "{{ .Values.elasticsearch.persistentVolume.azure.storageClass }}"
   resources:
     requests:

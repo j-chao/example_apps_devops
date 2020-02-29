@@ -10,7 +10,7 @@ fluentd:
   enabled: true
   name: fluentd
   image:
-    repository: localhost:32000/fluentd
+    repository: jchao100/fluentd
     tag: v1.8.1-debian-1.0
     pullPolicy: Always
   service:
@@ -51,9 +51,13 @@ apmServer:
     tag: 7.6.0
     pullPolicy: Always
   service:
-    type: NodePort
-    nodePort: 32655
-    port: 8200
+    local:
+      type: NodePort
+      nodePort: 32655
+      port: 8200
+    azure:
+      type: LoadBalancer
+      port: 8200
 
 kibana:
   enabled: true

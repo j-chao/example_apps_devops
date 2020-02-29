@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.mssql.name }}
+  labels:
+    {{- include "demo_microservices.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.mssql.name }}
+      {{- include "demo_microservices.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.mssql.name }}
+        {{- include "demo_microservices.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Values.mssql.name }}
+          image: "{{ .Values.mssql.image.repository }}:{{ .Values.mssql.image.tag }}"
+          imagePullPolicy: {{ .Values.mssql.image.pullPolicy }}
+          args: 
+          - "mssql"
+          - "-c"
+          - "config_file=/etc/mssqlql/mssqlql.conf"
+          - "-c"
+          - "hba_file=/etc/mssqlql/pg_hba.conf"
+          env:
+          - name: mssql_PASSWORD
+            value: password
+          volumeMounts:
+          - name: mssql-config
+            mountPath: /etc/mssqlql
+          ports:
+            - name: http
+              containerPort: 5432
+              protocol: TCP
