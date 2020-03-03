@@ -59,12 +59,12 @@ module "aks" {
   prefix                   = azurerm_resource_group.demo.name
   location                 = azurerm_resource_group.demo.location
   vm_pool_name             = "default"
-  vm_count                 = "2"
-  vm_size                  = "Standard_F2"
+  vm_count                 = "3"
+  vm_size                  = "Standard_F8s_v2"
   kubernetes_client_id     = module.k8s-sp.app_id
   kubernetes_client_secret = module.k8s-sp.password
 
-  aks_depends_on = [module.k8s-sp.password]
+  aks_depends_on = [module.k8s-sp.password, azurerm_role_assignment.k8s-sp.id]
 }
 
 
@@ -76,6 +76,6 @@ output "k8s_fqdn" {
   value = module.aks.fqdn
 }
 
-output "k8s_client_certificate" {
-  value = module.aks.kube_config.0.client_certificate
-}
+#output "k8s_client_certificate" {
+  #value = module.aks.kube_config.0.client_certificate
+#}

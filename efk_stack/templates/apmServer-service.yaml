@@ -5,6 +5,10 @@ metadata:
   labels:
     app: {{ .Values.apmServer.name }}
     {{- include "oht-devops.labels" . | nindent 4 }}
+{{ if eq .Values.environment "azure" }}
+  annotations:
+    service.beta.kubernetes.io/azure-dns-label-name: {{ .Values.dns_prefix }}-{{ .Values.apmServer.name }}
+{{ end }}
 spec:
 {{ if eq .Values.environment "local" }}
   type: {{ .Values.apmServer.service.local.type }}

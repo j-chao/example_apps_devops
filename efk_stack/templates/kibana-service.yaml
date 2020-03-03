@@ -5,13 +5,26 @@ metadata:
   labels:
     app: {{ .Values.kibana.name }}
     {{- include "oht-devops.labels" . | nindent 4 }}
+{{ if eq .Values.environment "azure" }}
+  annotations:
+    service.beta.kubernetes.io/azure-dns-label-name: {{ .Values.dns_prefix }}-{{ .Values.kibana.name }}
+{{ end }}
 spec:
-  type: {{ .Values.kibana.service.type }}
+{{ if eq .Values.environment "local" }}
+  type: {{ .Values.kibana.service.local.type }}
   ports:
-    - port: {{ .Values.kibana.service.port }}
+    - port: {{ .Values.kibana.service.local.port }}
       targetPort: http
       protocol: TCP
       name: http
+{{ else if eq .Values.environment "azure" }}
+  type: {{ .Values.kibana.service.azure.type }}
+  ports:
+    - port: {{ .Values.kibana.service.azure.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+{{ end }}
   selector:
     app: {{ .Values.kibana.name }}
     {{- include "oht-devops.selectorLabels" . | nindent 4 }} 

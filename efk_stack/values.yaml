@@ -1,10 +1,14 @@
 # Template values 
 
-environment: azure
+environment: azure  # enum: local, azure
+dns_prefix: cumulus
 
 serviceAccounts:
   create: true
-  name: kube-state-metrics
+  name: efk
+
+podSecurityContext:
+  fsGroup: 1000
 
 fluentd:
   enabled: true
@@ -16,12 +20,18 @@ fluentd:
   service:
     type: ClusterIP
     port: 24224
+  resources:
+    limits:
+      memory: 500Mi
+    requests:
+      cpu: 100m
+      memory: 200Mi
   persistentVolume:
     local:
       storageClass: microk8s-hostpath
       size: 20Mi
     azure:
-      storageClass: default
+      storageClass: azurefile
       size: 5Gi
 
 elasticsearch:
@@ -34,7 +44,13 @@ elasticsearch:
   service:
     type: ClusterIP
     port: 9200
-  singleNode: true
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 3Gi
+    requests:
+      cpu: 100m
+      memory: 3Gi
   persistentVolume:
     local:
       storageClass: microk8s-hostpath
@@ -57,7 +73,7 @@ apmServer:
       port: 8200
     azure:
       type: LoadBalancer
-      port: 8200
+      port: 80
 
 kibana:
   enabled: true
@@ -67,13 +83,23 @@ kibana:
     tag: 7.6.0
     pullPolicy: IfNotPresent
   service:
-    type: ClusterIP
-    port: 5601
+    local:
+      type: ClusterIP
+      port: 5601
+    azure:
+      type: LoadBalancer
+      port: 80
+  resources:
+    # need more cpu upon initialization, therefore burstable class
+    limits:
+      cpu: 1000m
+    requests:
+      cpu: 100m
   persistentVolume:
     local:
       storageClass: microk8s-hostpath
       size: 20Mi
     azure:
-      storageClass: default
+      storageClass: azurefile
       size: 5Gi
 

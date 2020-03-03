@@ -1,0 +1,76 @@
+{{ if eq .Values.environment "azure" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.elasticsearch.name }}-client
+  labels:
+    {{- include "oht-devops.labels" . | nindent 4 }}
+    role: client
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: {{ .Values.elasticsearch.name }}-client
+      {{- include "oht-devops.selectorLabels" . | nindent 6 }}
+      role: client
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.elasticsearch.name }}-client
+        {{- include "oht-devops.selectorLabels" . | nindent 8 }}
+        role: client
+    spec:
+      securityContext:
+        fsGroup: 0
+      initContainers:
+      - name: init-sysctl
+        image: busybox:1.31.1
+        command:
+        - sysctl
+        - -w
+        - vm.max_map_count=262144
+        securityContext:
+          privileged: true
+      containers:
+      - name: {{ .Values.elasticsearch.name }}-client
+        image: "{{ .Values.elasticsearch.image.repository }}:{{ .Values.elasticsearch.image.tag }}"
+        env:
+        - name: discovery.seed_hosts
+          value: "{{ .Values.elasticsearch.name }}-discovery.default.svc:9300,{{ .Values.elasticsearch.name }}-data.default.svc:9300,{{ .Values.elasticsearch.name }}-client.default.svc:9200"
+        - name: NODE_MASTER
+          value: "false"
+        - name: NODE_INGEST
+          value: "false"
+        - name: NODE_DATA
+          value: "false"
+        - name: HTTP_ENABLE
+          value: "true"
+        - name: ES_JAVA_OPTS
+          value: -Xms256m -Xmx256m
+        - name: PROCESSORS
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+        resources:
+          {{- toYaml .Values.elasticsearch.resources | nindent 12 }}
+        ports:
+        - containerPort: 9200
+          name: http
+        - containerPort: 9300
+          name: transport
+        volumeMounts:
+        - name: elasticsearch-data
+          mountPath: /usr/share/elasticsearch/data
+        - name: elasticsearch-config
+          mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+          subPath: elasticsearch.yml
+      volumes:
+      - name: elasticsearch-data
+        emptyDir: {}
+      - name: elasticsearch-config
+        configMap:
+          name: {{ .Release.Name }}-configmap
+          items:
+            - key: elasticsearch.yml
+              path: elasticsearch.yml
+{{ end }}

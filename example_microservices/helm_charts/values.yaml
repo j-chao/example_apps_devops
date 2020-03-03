@@ -15,9 +15,27 @@ patient_ms:
     type: ClusterIP
     port: 8080
 
-
 postgres:
   enabled: true
+  name: postgres
+  image:
+    repository: postgres
+    tag: 12.1
+    pullPolicy: Always
+  service:
+    type: NodePort
+    port: 5432
+    nodePort: 32650
+  persistentVolume:
+    local:
+      storageClass: microk8s-hostpath
+      size: 20Mi
+    azure:
+      storageClass: default
+      size: 2Gi
+
+mssql :
+  enabled: false
   name: postgres
   image:
     repository: postgres

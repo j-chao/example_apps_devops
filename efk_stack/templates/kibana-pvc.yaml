@@ -6,7 +6,7 @@ metadata:
   name: {{ .Values.kibana.name }}-pv
 spec:
   accessModes:
-  - ReadWriteOnce
+  - ReadWriteMany
 {{ if eq .Values.environment "local" }}
   storageClassName: "{{ .Values.kibana.persistentVolume.local.storageClass }}"
   resources:

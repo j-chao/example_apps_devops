@@ -1,3 +1,4 @@
+{{ if eq .Values.mssql.enabled true }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -36,3 +37,4 @@ spec:
             - name: http
               containerPort: 5432
               protocol: TCP
+{{ end }}

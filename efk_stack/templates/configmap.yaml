@@ -7,7 +7,7 @@ data:
     server.host: "0"
     server.port: 5601
     server.name: "kibana.default.svc"
-    elasticsearch.hosts: ["http://elasticsearch.default.svc:9200"]   
+    elasticsearch.hosts: ["http://elasticsearch-client.default.svc:9200"]   
     elasticsearch.username: "kibana"
     elasticsearch.password: "seO7s5bIbsEZPSpGhejK"
 
@@ -20,13 +20,13 @@ data:
         username: "elastic" 
         password: "GINVFQ0Z7m2v0n7mR24F"
     output.elasticsearch:
-      hosts: ["http://elasticsearch.default.svc:9200"]
+      hosts: ["http://elasticsearch-client.default.svc:9200"]
       username: "elastic" 
       password: "GINVFQ0Z7m2v0n7mR24F"
 
     monitoring.enabled: true
     monitoring.elasticsearch:
-      hosts: ["http://elasticsearch.default.svc:9200"]
+      hosts: ["http://elasticsearch-client.default.svc:9200"]
 
   fluent.conf: |-
     <system>
@@ -88,7 +88,7 @@ data:
 
     <match metrics>
       @type elasticsearch
-      host elasticsearch.default.svc
+      host elasticsearch-client.default.svc
       port 9200
       user elastic
       password GINVFQ0Z7m2v0n7mR24F
@@ -104,7 +104,7 @@ data:
 
     <match logs>
       @type elasticsearch
-      host elasticsearch.default.svc
+      host elasticsearch-client.default.svc
       port 9200
       user elastic
       password GINVFQ0Z7m2v0n7mR24F
@@ -173,6 +173,9 @@ data:
     #
     #node.attr.rack: r1
     #
+    node.master: ${NODE_MASTER}
+    node.data: ${NODE_DATA}
+    node.ingest: ${NODE_INGEST}
     # ----------------------------------- Paths ------------------------------------
     #
     # Path to directory where to store the data (separate multiple locations by comma):
@@ -212,11 +215,11 @@ data:
     # Pass an initial list of hosts to perform discovery when this node is started:
     # The default list of hosts is ["127.0.0.1", "[::1]"]
     #
-    #discovery.seed_hosts: ["host1", "host2"]
+    discovery.seed_hosts: ["{{ .Values.elasticsearch.name }}-discovery.default.svc:9300,{{ .Values.elasticsearch.name }}-data.default.svc:9300,{{ .Values.elasticsearch.name }}-client.default.svc:9200"]
     #
     # Bootstrap the cluster using an initial set of master-eligible nodes:
     #
-    #cluster.initial_master_nodes: ["node-1", "node-2"]
+    cluster.initial_master_nodes: "elasticsearch-master"
     #
     # For more information, consult the discovery and cluster formation module documentation.
     #

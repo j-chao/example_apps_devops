@@ -1,6 +1,6 @@
 apiVersion: v2
-name: monitoring
-description: Elastic Stack with Fluent Bit
+name: EFK
+description: Elastic Stack with Fluentd
 
 # A chart can be either an 'application' or a 'library' chart.
 #

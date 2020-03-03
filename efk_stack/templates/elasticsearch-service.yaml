@@ -1,3 +1,4 @@
+{{ if eq .Values.environment "sandbox" }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -15,3 +16,81 @@ spec:
   selector:
     app: {{ .Values.elasticsearch.name }}
     {{- include "oht-devops.selectorLabels" . | nindent 4 }} 
+
+{{ else if eq .Values.environment "azure" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.elasticsearch.name }}-discovery
+  labels:
+    app: {{ .Values.elasticsearch.name }}-master
+    {{- include "oht-devops.labels" . | nindent 4 }}
+    role: master
+spec:
+  selector:
+    app: {{ .Values.elasticsearch.name }}-master
+    {{- include "oht-devops.selectorLabels" . | nindent 4 }} 
+    role: master
+  ports:
+  - name: transport
+    port: 9300
+    protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.elasticsearch.name }}-data
+  labels:
+    app: {{ .Values.elasticsearch.name }}-data
+    {{- include "oht-devops.labels" . | nindent 4 }}
+    role: data
+spec:
+  ports:
+  - port: 9300
+    name: transport
+  selector:
+    app: {{ .Values.elasticsearch.name }}-data
+    {{- include "oht-devops.selectorLabels" . | nindent 4 }} 
+    role: data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.elasticsearch.name }}-data-headless
+  labels:
+    app: {{ .Values.elasticsearch.name }}-data
+    {{- include "oht-devops.labels" . | nindent 4 }}
+    role: data
+spec:
+  ports:
+  - port: 9300
+    name: transport
+  clusterIP: None
+  selector:
+    app: {{ .Values.elasticsearch.name }}-data
+    {{- include "oht-devops.selectorLabels" . | nindent 4 }} 
+    role: data
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.elasticsearch.name }}-client
+  labels:
+    app: {{ .Values.elasticsearch.name }}-client
+    {{- include "oht-devops.labels" . | nindent 4 }}
+    role: client
+  annotations:
+    service.beta.kubernetes.io/azure-dns-label-name: {{ .Values.dns_prefix }}-{{ .Values.elasticsearch.name }}
+spec:
+  selector:
+    app: {{ .Values.elasticsearch.name }}-client
+    {{- include "oht-devops.selectorLabels" . | nindent 4 }} 
+    role: client
+  ports:
+  - name: http
+    port: 80
+    targetPort: 9200
+  type: LoadBalancer
+{{ end }}

@@ -19,6 +19,8 @@ spec:
         {{- include "oht-devops.selectorLabels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ .Values.serviceAccounts.Name }}
+      securityContext:
+        fsGroup: 0
       containers:
         - name: {{ .Values.kibana.name  }}
           securityContext:

@@ -60,7 +60,7 @@ $ terraform plan -out=vpc.plan -target=module.vpc
 ## Get credentials to the AKS cluster
 
 ```bash
-$ az aks get-credentials --resource-group cumulus-demo --name cumulus-demo-aks
+$ az aks get-credentials --resource-group cumulus-demo --name cumulus-demo-k8s
 ```
 
 
