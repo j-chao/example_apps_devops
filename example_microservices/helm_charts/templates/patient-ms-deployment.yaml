@@ -21,10 +21,74 @@ spec:
           image: "{{ .Values.patient_ms.image.repository }}:{{ .Values.patient_ms.image.tag }}"
           imagePullPolicy: {{ .Values.patient_ms.image.pullPolicy }}
           command: ["java", 
-            "-javaagent:/tmp/elastic-apm-agent-1.13.0.jar",
-            "-jar", "foster-api-0.0.1-SNAPSHOT.jar"
+            "-javaagent:/tmp/elastic-apm-agent-1.14.0.jar",
+            "-Dspring.datasource.url=jdbc:postgresql://postgres.default.svc:5432/postgres",
+            "-jar", "patient-ms-0.0.1-SNAPSHOT.jar"
           ]
           ports:
             - name: http
               containerPort: {{ .Values.patient_ms.service.port }}
               protocol: TCP
+          volumeMounts:
+          - name: elasticapm-config-volume
+            mountPath: /tmp
+          - name: log-volume
+            mountPath: /var/log
+          - name: {{ .Values.observability.name }}-config
+            mountPath: /tmp/elasticapm.properties
+            subPath: elasticapm.properties 
+        - name: fluentbit
+          image: fluent/fluent-bit:1.3.3
+          imagePullPolicy: IfNotPresent
+          command: ['/fluent-bit/bin/fluent-bit', '-c', '/tmp/etc/fluent-bit.conf']
+          env: 
+          - name: FLUENT_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: FLUENT_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: FLUENT_POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: FLUENT_POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: FLUENT_HOST_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.hostIP
+          volumeMounts:
+          - name: {{ .Values.observability.name }}-config
+            mountPath: /tmp/etc
+          - name: log-volume
+            mountPath: /var/log
+      initContainers:
+        - name: provision-apm-agent
+          image: busybox:1.31.1
+          imagePullPolicy: IfNotPresent
+          command: ['sh', '-c', 'wget -O /tmp/elastic-apm-agent-1.14.0.jar https://search.maven.org/remotecontent?filepath=co/elastic/apm/elastic-apm-agent/1.14.0/elastic-apm-agent-1.14.0.jar']
+          volumeMounts:
+          - name: elasticapm-config-volume
+            mountPath: /tmp
+      volumes:
+      - name: elasticapm-config-volume
+        emptyDir: {}
+      - name: log-volume
+        emptyDir: {}
+      - name: {{ .Values.observability.name }}-config
+        configMap:
+          name: {{ .Values.observability.name }}-configmap
+          items:
+            - key: fluent-bit.conf
+              path: fluent-bit.conf
+      - name: {{ .Values.observability.name }}-config
+        configMap:
+          name: {{ .Values.observability.name }}-configmap
+          items:
+            - key: elasticapm.properties
+              path: elasticapm.properties

@@ -20,6 +20,7 @@ spec:
     spec:
       serviceAccountName: {{ .Values.serviceAccounts.name }}
       securityContext:
+        runAsUser: 1000
         fsGroup: 0
       containers:
         - name: {{ .Values.fluentd.name  }}

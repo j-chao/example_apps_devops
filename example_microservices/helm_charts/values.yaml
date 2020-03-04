@@ -4,16 +4,32 @@
 
 replicaCount: 1
 
+environment: azure
+dns_prefix: cumulus
+
 patient_ms:
   enabled: true
   name: patient-microservice
   image:
-    repository: localhost:32000/patient_ms
+    repository: jchao100/patient-ms
     tag: latest
     pullPolicy: Always
   service:
-    type: ClusterIP
-    port: 8080
+    type: LoadBalancer
+    port: 80
+    targetPort: 4200
+
+patient_ui:
+  enabled: true
+  name: patient-ui
+  image:
+    repository: jchao100/patient-ui
+    tag: latest
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 80
+    targetPort: 8080
 
 postgres:
   enabled: true
@@ -65,7 +81,7 @@ debezium:
     port: 8083
 
 kafkaConnect:
-  enabled: disabled
+  enabled: false
   name: kafka-connect
   image:
     repository: confluentinc/cp-kafka-connect
@@ -74,4 +90,8 @@ kafkaConnect:
   service:
     type: ClusterIP
     port: 8083
+
+
+observability:
+  name: observability
 

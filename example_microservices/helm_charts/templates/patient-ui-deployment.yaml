@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.patient_ui.name }}
+  labels:
+    {{- include "demo_microservices.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.patient_ui.name }}
+      {{- include "demo_microservices.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.patient_ui.name }}
+        {{- include "demo_microservices.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Values.patient_ui.name }}
+          image: "{{ .Values.patient_ui.image.repository }}:{{ .Values.patient_ui.image.tag }}"
+          imagePullPolicy: {{ .Values.patient_ui.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.patient_ui.service.port }}
+              protocol: TCP

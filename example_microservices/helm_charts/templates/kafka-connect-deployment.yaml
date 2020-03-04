@@ -1,3 +1,4 @@
+{{ if eq .Values.kafkaConnect.enabled true }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -55,3 +56,4 @@ spec:
             - name: http
               containerPort: {{ .Values.kafkaConnect.service.port }}
               protocol: TCP
+{{ end }}

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+  <include resource="org/springframework/boot/logging/logback/file-appender.xml"/>
+  <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="co.elastic.logging.logback.EcsEncoder">
+      <serviceName>patient-ms</serviceName>
+      <includeMarkers>true</includeMarkers>
+    </encoder>
+  </appender>
+  <appender name="json-file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <encoder class="co.elastic.logging.logback.EcsEncoder">
+      <serviceName>patient-ms</serviceName>
+      <includeMarkers>true</includeMarkers>
+    </encoder>
+    <file>/var/log/patient-ms.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_FILE}.json.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+      <maxFileSize>${LOG_FILE_MAX_SIZE:-10MB}</maxFileSize>
+      <maxHistory>${LOG_FILE_MAX_HISTORY:-0}</maxHistory>
+    </rollingPolicy>
+  </appender>
+
+  <root level="INFO">
+    <appender-ref ref="console"/>
+    <appender-ref ref="json-file"/>
+    <!-- uncomment this if you also want to log in plain text
+    <appender-ref ref="FILE"/>
+    -->
+  </root>
+</configuration>

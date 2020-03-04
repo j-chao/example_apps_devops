@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.observability.name }}-configmap
+  labels:
+    {{- include "demo_microservices.labels" . | nindent 4 }}
+data:
+  elasticapm.properties: |-
+    server_urls=http://apm-server.default.svc:80
+    environment=development
+    enable_log_correlation=true
+    application_packages=com.example.patientms
+
+  fluent-bit.conf: |-
+    [SERVICE]
+        Flush     5
+        Daemon    off
+        Log_Level debug
+
+    [INPUT]
+        Name      tail
+        Tag       logs
+        Path      /var/log/*.log
+
+    [INPUT]
+        Name cpu
+        Tag  metrics_cpu
+        Interval_Sec  1
+        Interval_NSec 0
+
+    [INPUT]
+        Name   mem
+        Tag    metrics_memory
+        Interval_Sec  1
+        Interval_NSec 0
+
+    [INPUT]
+        Name          disk
+        Tag           metrics_disk
+        Interval_Sec  5
+        Interval_NSec 0
+
+    [INPUT]
+        Name          netif
+        Tag           metrics_netif
+        Interval_Sec  1
+        Interval_NSec 0
+        Interface     eth0
+
+    [FILTER]
+        Name modify
+        Match *
+        Add node_name ${FLUENT_NODE_NAME}
+        Add pod_name ${FLUENT_POD_NAME}
+        Add pod_namespace ${FLUENT_POD_NAMESPACE}
+        Add pod_ip ${FLUENT_POD_IP}
+        Add host_ip ${FLUENT_HOST_IP}
+
+    [OUTPUT]
+        Name  http
+        Match *
+        Host  fluentd.default.svc
+        Port  9880
+        Format json
+        URI   /fluentbit
+        header_tag  FLUENT-TAG
+
+    [OUTPUT]
+        Name          forward
+        Match         *
+        Host          fluentd.default.svc
+        Port          9880
+        tls.verify    off
+
+    [OUTPUT]
+        Name          stdout
+        Match         netif
+

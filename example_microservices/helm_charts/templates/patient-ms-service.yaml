@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.patient_ms.name }}
+  labels:
+    {{- include "demo_microservices.labels" . | nindent 4 }}
+    {{ if eq .Values.environment "azure" }}
+  annotations:
+    service.beta.kubernetes.io/azure-dns-label-name: {{ .Values.dns_prefix }}-{{ .Values.patient_ms.name }}
+    {{ end }}
+spec:
+  type: {{ .Values.patient_ms.service.type }}
+  ports:
+    - port: {{ .Values.patient_ms.service.port }}
+      targetPort: {{ .Values.patient_ms.service.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ .Values.patient_ms.name }}
+    {{- include "demo_microservices.selectorLabels" . | nindent 4 }}
+

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.beta.kubernetes.io/azure-dns-label-name: cumulus-patient-ui
+  name: patient-ui
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 4200
+  selector:
+    app: patient-ui
+  sessionAffinity: None
+  type: LoadBalancer

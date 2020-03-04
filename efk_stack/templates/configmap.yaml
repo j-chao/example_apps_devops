@@ -7,26 +7,29 @@ data:
     server.host: "0"
     server.port: 5601
     server.name: "kibana.default.svc"
-    elasticsearch.hosts: ["http://elasticsearch-client.default.svc:9200"]   
+    elasticsearch.hosts: ["http://elasticsearch-client.default.svc:80"]   
     elasticsearch.username: "kibana"
     elasticsearch.password: "seO7s5bIbsEZPSpGhejK"
+    elasticsearch.requestTimeout: 90000
 
   apm-server.yml: |-
     apm-server:
       host: "0.0.0.0:8200"
       kibana:
         enabled: true
-        host: "kibana.default.svc:5601"
+        host: "kibana.default.svc:80"
         username: "elastic" 
         password: "GINVFQ0Z7m2v0n7mR24F"
     output.elasticsearch:
-      hosts: ["http://elasticsearch-client.default.svc:9200"]
+      hosts: ["http://elasticsearch-client.default.svc:80"]
       username: "elastic" 
       password: "GINVFQ0Z7m2v0n7mR24F"
 
     monitoring.enabled: true
     monitoring.elasticsearch:
-      hosts: ["http://elasticsearch-client.default.svc:9200"]
+      hosts: ["http://elasticsearch-client.default.svc:80"]
+    apm-server.rum.enabled: true
+
 
   fluent.conf: |-
     <system>
@@ -89,7 +92,7 @@ data:
     <match metrics>
       @type elasticsearch
       host elasticsearch-client.default.svc
-      port 9200
+      port 80
       user elastic
       password GINVFQ0Z7m2v0n7mR24F
       index_name metrics
@@ -105,7 +108,7 @@ data:
     <match logs>
       @type elasticsearch
       host elasticsearch-client.default.svc
-      port 9200
+      port 80
       user elastic
       password GINVFQ0Z7m2v0n7mR24F
       index_name logs
@@ -116,11 +119,11 @@ data:
       <buffer>
         flush_thread_count 8
       </buffer>
-      <parse>
-        @type regexp
-        expression (?<first>.{4}).*trace\.id\=(?<trace_id>.+),
-        time_key log_time
-      </parse>
+      #<parse>
+        #@type regexp
+        #expression (?<first>.{4}).*trace\.id\=(?<trace_id>.+),
+        #time_key log_time
+      #</parse>
     </match>
 
     #<match **>
@@ -215,7 +218,7 @@ data:
     # Pass an initial list of hosts to perform discovery when this node is started:
     # The default list of hosts is ["127.0.0.1", "[::1]"]
     #
-    discovery.seed_hosts: ["{{ .Values.elasticsearch.name }}-discovery.default.svc:9300,{{ .Values.elasticsearch.name }}-data.default.svc:9300,{{ .Values.elasticsearch.name }}-client.default.svc:9200"]
+    discovery.seed_hosts: ["{{ .Values.elasticsearch.name }}-discovery.default.svc:9300,{{ .Values.elasticsearch.name }}-data.default.svc:9300,{{ .Values.elasticsearch.name }}-client.default.svc:80"]
     #
     # Bootstrap the cluster using an initial set of master-eligible nodes:
     #
