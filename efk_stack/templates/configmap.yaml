@@ -7,9 +7,13 @@ data:
     server.host: "0"
     server.port: 5601
     server.name: "kibana.default.svc"
-    elasticsearch.hosts: ["http://elasticsearch-client.default.svc:80"]   
-    elasticsearch.username: "kibana"
-    elasticsearch.password: "seO7s5bIbsEZPSpGhejK"
+    elasticsearch.hosts: ["https://elasticsearch-client.default.svc:443"]
+    elasticsearch.username: "elastic"
+    elasticsearch.password: "es_bootstrap_password"
+    elasticsearch.ssl.verificationMode: "certificate"
+    #elasticsearch.ssl.key: "/usr/share/kibana/data/certs/elasticsearch.key"
+    #elasticsearch.ssl.certificate: "/usr/share/kibana/data/certs/elasticsearch.cer"
+    elasticsearch.ssl.certificateAuthorities: ["/usr/share/kibana/data/certs/elasticsearch-ca.pem"]
     elasticsearch.requestTimeout: 90000
 
   apm-server.yml: |-
@@ -19,11 +23,11 @@ data:
         enabled: true
         host: "kibana.default.svc:80"
         username: "elastic" 
-        password: "GINVFQ0Z7m2v0n7mR24F"
+        password: "es_bootstrap_password"
     output.elasticsearch:
       hosts: ["http://elasticsearch-client.default.svc:80"]
       username: "elastic" 
-      password: "GINVFQ0Z7m2v0n7mR24F"
+      password: "es_bootstrap_password"
 
     monitoring.enabled: true
     monitoring.elasticsearch:
@@ -94,7 +98,7 @@ data:
       host elasticsearch-client.default.svc
       port 80
       user elastic
-      password GINVFQ0Z7m2v0n7mR24F
+      password es_bootstrap_password
       index_name metrics
       type_name metrics
       emit_error_for_missing_id true
@@ -110,7 +114,7 @@ data:
       host elasticsearch-client.default.svc
       port 80
       user elastic
-      password GINVFQ0Z7m2v0n7mR24F
+      password es_bootstrap_password
       index_name logs
       type_name logs
       emit_error_for_missing_id true
@@ -218,7 +222,7 @@ data:
     # Pass an initial list of hosts to perform discovery when this node is started:
     # The default list of hosts is ["127.0.0.1", "[::1]"]
     #
-    discovery.seed_hosts: ["{{ .Values.elasticsearch.name }}-discovery.default.svc:9300,{{ .Values.elasticsearch.name }}-data.default.svc:9300,{{ .Values.elasticsearch.name }}-client.default.svc:80"]
+    discovery.seed_hosts: ["{{ .Values.elasticsearch.name }}-discovery.default.svc:9300,{{ .Values.elasticsearch.name }}-data.default.svc:9300,{{ .Values.elasticsearch.name }}-client.default.svc:443"]
     #
     # Bootstrap the cluster using an initial set of master-eligible nodes:
     #
@@ -240,11 +244,27 @@ data:
     #
     #action.destructive_requires_name: true
     # ---------------------------------- Security ----------------------------------
-    xpack.security.enabled: false
-    xpack.security.http.ssl.enabled: false
+    xpack.security.enabled: true
+    xpack.security.transport.ssl.enabled: true
+    xpack.security.transport.ssl.verification_mode: certificate
+    xpack.security.transport.ssl.keystore.path: /usr/share/elasticsearch/config/certs/elasticsearch-certs.p12
+    xpack.security.transport.ssl.truststore.path: /usr/share/elasticsearch/config/certs/elasticsearch-certs.p12
+    xpack.security.http.ssl.enabled: true
+    xpack.security.http.ssl.truststore.path: /usr/share/elasticsearch/config/certs/elasticsearch-certs.p12
+    xpack.security.http.ssl.keystore.path: /usr/share/elasticsearch/config/certs/elasticsearch-certs.p12
     xpack.security.authc:
-      anonymous:
-        username: anonymous_user 
-        roles: kibana_user
-        authz_exception: true 
+      realms:
+        pki:
+          pki1:
+            order: 1
+      #anonymous:
+        #username: anonymous_user 
+        #roles: kibana_admin
+        #authz_exception: true 
+    # ---------------------------------- Monitoring ----------------------------------
+    xpack.monitoring.enabled: true
+    
 
+  role_mapping.yml: |-
+    superuser: 
+      - "cn=Kibana" 

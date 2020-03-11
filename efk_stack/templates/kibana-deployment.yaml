@@ -4,6 +4,8 @@ metadata:
   name: {{ .Values.kibana.name }}
   labels:
     {{- include "oht-devops.labels" . | nindent 4 }}
+  annotations:
+    checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
 spec:
   replicas: {{ .Values.replicaCount }}
   strategy:
@@ -21,6 +23,37 @@ spec:
       serviceAccountName: {{ .Values.serviceAccounts.Name }}
       securityContext:
         fsGroup: 0
+      initContainers:
+      - name: provision-keystore
+        image: "{{ .Values.kibana.image.repository }}:{{ .Values.kibana.image.tag }}"
+        command:
+        - sh
+        - -c
+        - |
+          #!/usr/bin/env bash
+          set -euo pipefail
+          kibana-keystore create
+          #for i in /tmp/keystoreSecrets/*/*; do
+            #key=$(basename $i)
+            #echo "Adding file $i to keystore key $key"
+            #kibana-keystore add-file "$key" "$i"
+          #done
+          # Add the bootstrap password since otherwise the kibana entrypoint tries to do this on startup
+          if [ ! -z ${ELASTIC_PASSWORD+x} ]; then
+            echo 'Adding env $ELASTIC_PASSWORD to keystore as key elasticsearch.password'
+            echo "$ELASTIC_PASSWORD" | kibana-keystore add -x elasticsearch.password
+          fi
+          cp -a /usr/share/kibana/data/kibana.keystore /tmp/keystore/
+        env:
+        - name: ELASTIC_PASSWORD
+          value: "es_bootstrap_password"
+        volumeMounts:
+          - name: keystore
+            mountPath: /tmp/keystore
+          #{{- range .Values.keystore }}
+          #- name: keystore-{{ .secretName }}
+            #mountPath: /tmp/keystoreSecrets/{{ .secretName }}
+          #{{ end }}
       containers:
         - name: {{ .Values.kibana.name  }}
           securityContext:
@@ -45,6 +78,18 @@ spec:
             mountPath: /usr/share/kibana/data
           - name: kibana-config
             mountPath: /usr/share/kibana/config
+          - name: keystore
+            mountPath: /usr/share/kibana/data/kibana.keystore
+            subPath:  kibana.keystore
+          - name: {{ .Values.elasticsearch.name }}-ca
+            mountPath: /usr/share/kibana/data/certs/elasticsearch-ca.pem
+            subPath: elasticsearch-ca.pem
+          #- name: kibana-cer
+            #mountPath: /usr/share/kibana/data/certs/client.cer
+            #subPath: client.cer
+          #- name: kibana-key
+            #mountPath: /usr/share/kibana/data/certs/client.key
+            #subPath: client.key
       volumes:
       - name: kibana-data
         persistentVolumeClaim:
@@ -55,4 +100,14 @@ spec:
           items:
             - key: kibana.yml
               path: kibana.yml
-
+      - name: keystore
+        emptyDir: {}
+      - name: {{ .Values.elasticsearch.name }}-ca
+        secret:
+          secretName: {{ .Values.elasticsearch.name }}-ca
+      #- name: kibana-cer
+        #secret:
+          #secretName: kibana-cer
+      #- name: kibana-key
+        #secret:
+          #secretName: kibana-key
