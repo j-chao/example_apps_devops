@@ -8,8 +8,8 @@ data:
     server.port: 5601
     server.name: "kibana.default.svc"
     elasticsearch.hosts: ["https://elasticsearch-client.default.svc:443"]
-    elasticsearch.username: "elastic"
-    elasticsearch.password: "es_bootstrap_password"
+    elasticsearch.username: "kibana"
+    #elasticsearch.password: "es_bootstrap_password"
     elasticsearch.ssl.verificationMode: "certificate"
     #elasticsearch.ssl.key: "/usr/share/kibana/data/certs/elasticsearch.key"
     #elasticsearch.ssl.certificate: "/usr/share/kibana/data/certs/elasticsearch.cer"

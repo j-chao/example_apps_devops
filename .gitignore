@@ -10,4 +10,5 @@
 *.log
 private_ssh_key
 efk_stack/certs/*
+.env
 
