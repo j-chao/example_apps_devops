@@ -88,7 +88,7 @@ kibana:
       port: 5601
     azure:
       type: LoadBalancer
-      port: 80
+      port: 443
   resources:
     # need more cpu upon initialization, therefore burstable class
     limits:

@@ -29,3 +29,6 @@ $ make install
 
 ## Acknowledgments
 
+#### TODO
+- change certificate verification strategy for elasticsearch nodes to full to check for DNS
+

@@ -4,16 +4,21 @@ metadata:
   name: {{ .Release.Name }}-configmap
 data:
   kibana.yml: |-
-    server.host: "0"
-    server.port: 5601
-    server.name: "kibana.default.svc"
+    server:
+      host: "0"
+      port: 5601
+      name: "kibana.default.svc"
+      ssl:
+        enabled: true
+        certificate: "/usr/share/kibana/data/elasticsearch.cer"
+        key: "/usr/share/kibana/data/elasticsearch.key"
     elasticsearch.hosts: ["https://elasticsearch-client.default.svc:443"]
     elasticsearch.username: "kibana"
     #elasticsearch.password: "es_bootstrap_password"
     elasticsearch.ssl.verificationMode: "certificate"
     #elasticsearch.ssl.key: "/usr/share/kibana/data/certs/elasticsearch.key"
     #elasticsearch.ssl.certificate: "/usr/share/kibana/data/certs/elasticsearch.cer"
-    elasticsearch.ssl.certificateAuthorities: ["/usr/share/kibana/data/certs/elasticsearch-ca.pem"]
+    elasticsearch.ssl.certificateAuthorities: ["/usr/share/kibana/data/elasticsearch-ca.pem"]
     elasticsearch.requestTimeout: 90000
 
   apm-server.yml: |-
@@ -23,15 +28,23 @@ data:
         enabled: true
         host: "kibana.default.svc:80"
         username: "elastic" 
-        password: "es_bootstrap_password"
+        #password: "es_bootstrap_password"
+        password: "${ES_APMSERVER_PASSWORD}"
     output.elasticsearch:
-      hosts: ["http://elasticsearch-client.default.svc:80"]
+      hosts: ["https://elasticsearch-client.default.svc:443"]
       username: "elastic" 
-      password: "es_bootstrap_password"
+      #password: "es_bootstrap_password"
+      password: "${ES_APMSERVER_PASSWORD}"
+      ssl:
+        enabled: "true"
+        verification_mode: "full"
+        certificate_authorities: ["/usr/share/apm-server/data/certs/elasticsearch-ca.pem"]
+
+
 
     monitoring.enabled: true
     monitoring.elasticsearch:
-      hosts: ["http://elasticsearch-client.default.svc:80"]
+      hosts: ["https://elasticsearch-client.default.svc:443"]
     apm-server.rum.enabled: true
 
 
@@ -252,11 +265,6 @@ data:
     xpack.security.http.ssl.enabled: true
     xpack.security.http.ssl.truststore.path: /usr/share/elasticsearch/config/certs/elasticsearch-certs.p12
     xpack.security.http.ssl.keystore.path: /usr/share/elasticsearch/config/certs/elasticsearch-certs.p12
-    xpack.security.authc:
-      realms:
-        pki:
-          pki1:
-            order: 1
       #anonymous:
         #username: anonymous_user 
         #roles: kibana_admin

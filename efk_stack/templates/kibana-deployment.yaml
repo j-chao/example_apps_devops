@@ -85,14 +85,14 @@ spec:
             mountPath: /usr/share/kibana/data/kibana.keystore
             subPath:  kibana.keystore
           - name: {{ .Values.elasticsearch.name }}-ca
-            mountPath: /usr/share/kibana/data/certs/elasticsearch-ca.pem
+            mountPath: /usr/share/kibana/data/elasticsearch-ca.pem
             subPath: elasticsearch-ca.pem
-          #- name: kibana-cer
-            #mountPath: /usr/share/kibana/data/certs/client.cer
-            #subPath: client.cer
-          #- name: kibana-key
-            #mountPath: /usr/share/kibana/data/certs/client.key
-            #subPath: client.key
+          - name: {{ .Values.elasticsearch.name }}-cer
+            mountPath: /usr/share/kibana/data/elasticsearch.cer
+            subPath: elasticsearch.cer
+          - name: {{ .Values.elasticsearch.name }}-key
+            mountPath: /usr/share/kibana/data/elasticsearch.key
+            subPath: elasticsearch.key
       volumes:
       - name: kibana-data
         persistentVolumeClaim:
@@ -108,9 +108,10 @@ spec:
       - name: {{ .Values.elasticsearch.name }}-ca
         secret:
           secretName: {{ .Values.elasticsearch.name }}-ca
-      #- name: kibana-cer
-        #secret:
-          #secretName: kibana-cer
-      #- name: kibana-key
-        #secret:
-          #secretName: kibana-key
+      - name: {{ .Values.elasticsearch.name }}-cer
+        secret:
+          secretName: {{ .Values.elasticsearch.name }}-cer
+      - name: {{ .Values.elasticsearch.name }}-key
+        secret:
+          secretName: {{ .Values.elasticsearch.name }}-key
+
