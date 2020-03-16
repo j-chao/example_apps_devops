@@ -34,12 +34,31 @@ fluentd:
       storageClass: azurefile
       size: 5Gi
 
+metricbeat:
+  name: metricbeat
+  image:
+    repository: docker.elastic.co/beats/metricbeat
+    tag: 7.6.1
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 0.5Gi
+
 elasticsearch:
+  roles:
+    master: 3
+    client: 3
+    data: 3
   enabled: true
+  podManagementPolicy: Parallel
   name: elasticsearch
   image:
     repository: elasticsearch
-    tag: 7.6.0
+    tag: 7.6.1
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
@@ -64,7 +83,7 @@ apmServer:
   name: apm-server
   image:
     repository: docker.elastic.co/apm/apm-server
-    tag: 7.6.0
+    tag: 7.6.1
     pullPolicy: Always
   service:
     local:
@@ -80,7 +99,7 @@ kibana:
   name: kibana
   image:
     repository: kibana
-    tag: 7.6.0
+    tag: 7.6.1
     pullPolicy: IfNotPresent
   service:
     local:

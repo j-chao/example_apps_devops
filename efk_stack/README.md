@@ -30,5 +30,13 @@ $ make install
 ## Acknowledgments
 
 #### TODO
-- change certificate verification strategy for elasticsearch nodes to full to check for DNS
+- setup metricbeat monitoring for elastic cluster
+- make multiple certificates for each node
+  - change certificate verification strategy for elasticsearch nodes to full to check for DNS
+# setup native realm for users credentials via RESTful call to es cluster from kibana initcontainer
+# configure list of eligible masters
+- setup hot-warm-cold architecture
+- check compatibility with OSFI k8s
+  - convert from using mmapfs to niofs
+
 

@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-init-configmap
+data:
+  elasticsearch-init.sh: |- 
+    #!/usr/bin/env bash
+    set -euo pipefail
+    elasticsearch-keystore create
+    #for i in /tmp/keystoreSecrets/*/*; do
+      #key=$(basename $i)
+      #echo "Adding file $i to keystore key $key"
+      #elasticsearch-keystore add-file "$key" "$i"
+    #done
+    # Add the bootstrap password since otherwise the Elasticsearch entrypoint tries to do this on startup
+    if [ ! -z ${ES_BOOTSTRAP_PASSWORD+x} ]; then
+      echo 'Adding env $ES_BOOTSTRAP_PASSWORD to keystore as key bootstrap.password'
+      echo "$ES_BOOTSTRAP_PASSWORD" | elasticsearch-keystore add -x bootstrap.password
+    fi
+    cp -a /usr/share/elasticsearch/config/elasticsearch.keystore /tmp/keystore/
+
+  kibana-init.sh: |-
+    #!/usr/bin/env bash
+    set -euo pipefail
+    kibana-keystore create
+    #for i in /tmp/keystoreSecrets/*/*; do
+      #key=$(basename $i)
+      #echo "Adding file $i to keystore key $key"
+      #kibana-keystore add-file "$key" "$i"
+    #done
+    # Add the bootstrap password since otherwise the kibana entrypoint tries to do this on startup
+    if [ ! -z ${ES_KIBANA_PASSWORD+x} ]; then
+      echo 'Adding env $ES_KIBANA_PASSWORD to keystore as key elasticsearch.password'
+      echo "$ES_KIBANA_PASSWORD" | kibana-keystore add -x elasticsearch.password
+    fi
+    cp -a /usr/share/kibana/data/kibana.keystore /tmp/keystore/
+
+    # Provision users
+    es_health="$(curl -fsSLk -u elastic:es_bootstrap_password https://elasticsearch-client.default.svc/_cat/health?h=status)"
+    until [ "$es_health" = 'green' ]; do
+      es_health="$(curl -fsSLk -u elastic:es_bootstrap_password https://elasticsearch-client.default.svc/_cat/health?h=status)"
+      #health="$(echo "$health" | sed -r 's/^[[:space:]]+|[[:space:]]+$//g')" # trim whitespace (otherwise we'll have "green ")
+      >&2 echo "Elastic Search is unavailable - sleeping"
+      sleep 1
+    done
+    >&2 echo "Elastic Search is up!"
+
+    put_password="$(curl -fsSLk -o /dev/null -w "%{http_code}" -X PUT --header 'Content-Type: application/json' \
+      -d '{ "password": "kibana_password" }' -u elastic:es_bootstrap_password https://elasticsearch-client.default.svc/_xpack/security/user/kibana/_password)"
+
+    if [ "$put_password" != "200" ]
+    then
+      echo "Failing to provision users in Elasticsearch native realm via RESTful API."
+      exit 1
+    elif [ "$put_password" == "200" ]
+    then
+      echo "Successfully provisioned users in Elasticsearch native realm via RESTful API."
+      exit 0
+    else
+      echo "Something went wrong, got HTTP Status Code ${put_password} instead of 200."
+      exit 1
+    fi

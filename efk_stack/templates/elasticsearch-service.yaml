@@ -27,6 +27,7 @@ metadata:
     {{- include "oht-devops.labels" . | nindent 4 }}
     role: master
 spec:
+  clusterIP: None
   selector:
     app: {{ .Values.elasticsearch.name }}-master
     {{- include "oht-devops.selectorLabels" . | nindent 4 }} 
@@ -36,23 +37,6 @@ spec:
     port: 9300
     protocol: TCP
 
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ .Values.elasticsearch.name }}-data
-  labels:
-    app: {{ .Values.elasticsearch.name }}-data
-    {{- include "oht-devops.labels" . | nindent 4 }}
-    role: data
-spec:
-  ports:
-  - port: 9300
-    name: transport
-  selector:
-    app: {{ .Values.elasticsearch.name }}-data
-    {{- include "oht-devops.selectorLabels" . | nindent 4 }} 
-    role: data
 ---
 apiVersion: v1
 kind: Service
