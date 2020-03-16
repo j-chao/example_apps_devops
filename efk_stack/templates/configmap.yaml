@@ -201,6 +201,7 @@ data:
     - module: elasticsearch
       metricsets:
         - ccr
+        - enrich
         - cluster_stats
         - index
         - index_recovery
@@ -210,6 +211,8 @@ data:
         - shard
       period: 10s
       hosts: ["https://localhost:9200"]
+      ssl.certificate_authorities: ["/usr/share/metricbeat/data/elasticsearch-ca.pem"]
+      ssl.verification_mode: "full"
       username: "elastic"
       password: "es_bootstrap_password"
       xpack.enabled: true

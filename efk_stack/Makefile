@@ -30,7 +30,8 @@ secrets:
 		elasticsearch:7.6.0 \
 	  /bin/sh -c " \
 			elasticsearch-certutil ca --pass '' --out /certs/elastic-stack-ca.p12  && \
-			elasticsearch-certutil cert --ca /certs/elastic-stack-ca.p12 --name security-master --dns "elasticsearch-client.default.svc,kibana.default.svc" --pass '' --ca-pass '' --out /certs/elasticsearch-certs.p12 \
+			elasticsearch-certutil cert --ca /certs/elastic-stack-ca.p12 --name security-master \
+				--dns "elasticsearch-client.default.svc,kibana.default.svc,localhost" --pass '' --ca-pass '' --out /certs/elasticsearch-certs.p12 \
 			" ;\
 	# extract CA certificate from pkcs#12 certificate	
 	openssl pkcs12 -in certs/elasticsearch-certs.p12 -nodes -passin pass:'' -out certs/elasticsearch-ca.pem

@@ -31,6 +31,7 @@ $ make install
 
 #### TODO
 - setup metricbeat monitoring for elastic cluster
+- setup filebeat monitoring for elastic cluster
 - make multiple certificates for each node
   - change certificate verification strategy for elasticsearch nodes to full to check for DNS
 # setup native realm for users credentials via RESTful call to es cluster from kibana initcontainer

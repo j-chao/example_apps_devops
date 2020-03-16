@@ -118,7 +118,7 @@ spec:
             - key: metricbeat.yml
               path: metricbeat.yml
             - key: metricbeat-elasticsearch-xpack.yml
-              path: metricbeat-elasticsearch-xpack.yml
+              path: elasticsearch-xpack.yml
       - name: elasticsearch-init-config
         configMap:
           name: {{ .Release.Name }}-init-configmap
