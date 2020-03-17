@@ -23,14 +23,14 @@ data:
     elasticsearch.requestTimeout: 90000
     xpack:
       security:
-        loginAssistanceMessage: "Welcome to the OptumHealth Technology Operations Center."
+        loginAssistanceMessage: "OptumHealth Technology Operations Center."
 
   apm-server.yml: |-
     apm-server:
       host: "0.0.0.0:8200"
       kibana:
         enabled: true
-        host: "kibana.default.svc:80"
+        host: "https://kibana.default.svc:443"
         username: "elastic"
         password: "${ES_APMSERVER_PASSWORD}"
     output.elasticsearch:
@@ -181,7 +181,7 @@ data:
     metricbeat.max_start_delay: 10s
 
     # Setup Kibana dashboards
-    setup.dashboards.enabled: false
+    setup.dashboards.enabled: true
     setup.kibana.host: "https://kibana.default.svc:443"
     setup.kibana.ssl.enabled: true
     setup.kibana.ssl.certificate_authorities: ["/usr/share/metricbeat/data/elasticsearch-ca.pem"]
@@ -217,6 +217,47 @@ data:
       password: "es_bootstrap_password"
       xpack.enabled: true
 
+  filebeat.yml: |-
+    # ======================== Filebeat Configuration =========================
+    filebeat.modules:
+    - module: elasticsearch
+      server:
+        enabled: true
+        var.paths:
+          - /usr/share/elasticsearch/logs/*_server.json
+      gc:
+        enabled: true
+        var.paths:
+          - /usr/share/elasticsearch/logs/gc.log.[0-9]*
+          - /usr/share/elasticsearch/logs/gc.log
+      audit:
+        enabled: true
+        var.paths:
+        - /usr/share/elasticsearch/logs/*_audit.json
+      slowlog:
+        enabled: true
+        var.paths:
+          - /usr/share/elasticsearch/logs/*_index_search_slowlog.json   
+          - /usr/share/elasticsearch/logs/*_index_indexing_slowlog.json  
+      deprecation:
+        enabled: true
+        var.paths:
+          - /usr/share/elasticsearch/logs/*_deprecation.json
+    output.elasticsearch:
+      enabled: true
+      hosts: ["https://elasticsearch-client.default.svc:443"]
+      ssl.certificate_authorities: ["/usr/share/filebeat/data/elasticsearch-ca.pem"]
+      protocol: "https"
+      username: "elastic"
+      password: "es_bootstrap_password"
+
+    setup:
+      dashboards.enabled: true
+      kibana:
+        host: "https://kibana.default.svc:443"
+        ssl:
+          enabled: true
+          certificate_authorities: ["/usr/share/filebeat/data/elasticsearch-ca.pem"]
 
   elasticsearch.yml: |-
     # ======================== Elasticsearch Configuration =========================
@@ -340,3 +381,53 @@ data:
         #username: anonymous_user
         #roles: kibana_admin
         #authz_exception: true
+       
+
+  log4j2.properties: |-
+    status = error
+    property.logDir = /usr/share/elasticsearch/logs
+
+    appender.console.type = Console
+    appender.console.name = STDOUT
+    appender.console.layout.type = PatternLayout
+    appender.console.layout.pattern = [%d{ISO8601}][%-5p][%-25c{1.}] [%node_name]%marker %m%n
+    
+    ######## Server JSON ############################
+    appender.rolling.type = RollingFile
+    appender.rolling.name = RollingFile
+    appender.rolling.fileName = ${sys:es.logs.base_path}${sys:file.separator}${sys:es.logs.cluster_name}_server.json
+    appender.rolling.layout.type = ESJsonLayout
+    appender.rolling.layout.type_name = server
+
+    appender.rolling.filePattern = ${sys:es.logs.base_path}${sys:file.separator}${sys:es.logs.cluster_name}-%d{yyyy-MM-dd}-%i.json.gz
+    appender.rolling.policies.type = Policies
+    appender.rolling.policies.time.type = TimeBasedTriggeringPolicy
+    appender.rolling.policies.time.interval = 1
+    appender.rolling.policies.time.modulate = true
+    appender.rolling.policies.size.type = SizeBasedTriggeringPolicy
+    appender.rolling.policies.size.size = 128MB
+    appender.rolling.strategy.type = DefaultRolloverStrategy
+    appender.rolling.strategy.fileIndex = nomax
+    appender.rolling.strategy.action.type = Delete
+    appender.rolling.strategy.action.basepath = ${sys:es.logs.base_path}
+    appender.rolling.strategy.action.condition.type = IfFileName
+    appender.rolling.strategy.action.condition.glob = ${sys:es.logs.cluster_name}-*
+    appender.rolling.strategy.action.condition.nested_condition.type = IfAccumulatedFileSize
+    appender.rolling.strategy.action.condition.nested_condition.exceeds = 2GB
+    ################################################
+    
+    appender.console.filter.threshold.type = ThresholdFilter
+    appender.console.filter.threshold.level = info
+
+    logger.console.name = STDOUT
+    logger.console.level = info
+    logger.console.appenderRef.console.ref = STDOUT
+
+    logger.rolling.name = RollingFile
+    logger.rolling.level = info
+    logger.rolling.appenderRef.rolling.ref = RollingFile
+
+    rootLogger.level = info
+    rootLogger.appenderRef.console.ref = STDOUT
+    rootLogger.appenderRef.rolling.ref = RollingFile
+

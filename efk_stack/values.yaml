@@ -43,10 +43,24 @@ metricbeat:
   resources:
     limits:
       cpu: 500m
-      memory: 1Gi
+      memory: 300Mi
     requests:
       cpu: 100m
-      memory: 0.5Gi
+      memory: 200Mi
+
+filebeat:
+  name: filebeat
+  image:
+    repository: docker.elastic.co/beats/filebeat
+    tag: 7.6.1
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 500m
+      memory: 300Mi
+    requests:
+      cpu: 100m
+      memory: 200Mi
 
 elasticsearch:
   roles:
@@ -66,10 +80,10 @@ elasticsearch:
   resources:
     limits:
       cpu: 1000m
-      memory: 3Gi
+      memory: 1Gi
     requests:
       cpu: 100m
-      memory: 3Gi
+      memory: 0.5Gi
   persistentVolume:
     local:
       storageClass: microk8s-hostpath

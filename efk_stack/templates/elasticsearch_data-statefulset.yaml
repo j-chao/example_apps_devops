@@ -85,9 +85,14 @@ spec:
         - name: {{ .Values.elasticsearch.name }}-config
           mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
           subPath: elasticsearch.yml
+        - name: {{ .Values.elasticsearch.name }}-config
+          mountPath: /usr/share/elasticsearch/config/log4j2.properties
+          subPath: log4j2.properties
         - name: keystore
           mountPath: /usr/share/elasticsearch/config/elasticsearch.keystore
           subPath: elasticsearch.keystore
+        - name: logs
+          mountPath: /usr/share/elasticsearch/logs/
         - name: {{ .Values.elasticsearch.name }}-certs
           mountPath: /usr/share/elasticsearch/config/certs/
       - name: {{ .Values.metricbeat.name }}
@@ -104,6 +109,19 @@ spec:
         - name: {{ .Values.elasticsearch.name }}-ca
           mountPath: /usr/share/metricbeat/data/elasticsearch-ca.pem
           subPath: elasticsearch-ca.pem
+      - name: {{ .Values.filebeat.name }}
+        image: "{{ .Values.filebeat.image.repository }}:{{ .Values.filebeat.image.tag }}"
+        resources:
+          {{- toYaml .Values.filebeat.resources | nindent 12 }}
+        volumeMounts:
+        - name: {{ .Values.filebeat.name }}-config
+          mountPath: /usr/share/filebeat/filebeat.yml
+          subPath: filebeat.yml
+        - name: {{ .Values.elasticsearch.name }}-ca
+          mountPath: /usr/share/filebeat/data/elasticsearch-ca.pem
+          subPath: elasticsearch-ca.pem
+        - name: logs
+          mountPath: /usr/share/elasticsearch/logs/
       volumes:
       - name: elasticsearch-config
         configMap:
@@ -111,6 +129,8 @@ spec:
           items:
             - key: elasticsearch.yml
               path: elasticsearch.yml
+            - key: log4j2.properties
+              path: log4j2.properties
       - name: {{ .Values.metricbeat.name }}-config
         configMap:
           name: {{ .Release.Name }}-configmap
@@ -119,6 +139,12 @@ spec:
               path: metricbeat.yml
             - key: metricbeat-elasticsearch-xpack.yml
               path: elasticsearch-xpack.yml
+      - name: {{ .Values.filebeat.name }}-config
+        configMap:
+          name: {{ .Release.Name }}-configmap
+          items:
+            - key: filebeat.yml
+              path: filebeat.yml
       - name: elasticsearch-init-config
         configMap:
           name: {{ .Release.Name }}-init-configmap
@@ -126,6 +152,8 @@ spec:
             - key: elasticsearch-init.sh
               path: elasticsearch-init.sh
       - name: keystore
+        emptyDir: {}
+      - name: logs
         emptyDir: {}
       - name: {{ .Values.elasticsearch.name }}-ca
         secret:
