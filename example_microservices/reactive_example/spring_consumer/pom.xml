@@ -17,7 +17,7 @@
 
   <properties>
     <java.version>11</java.version>
-    <spring-boot-starter-webflux.version>2.2.3.RELEASE</spring-boot-starter-webflux.version>
+    <spring-boot-starter-webflux.version>2.5.12</spring-boot-starter-webflux.version>
     <spring-data-r2dbc.version>1.0.0.RELEASE</spring-data-r2dbc.version>
     <flyway.version>6.1.4</flyway.version>
     <lombok.version>1.18.10</lombok.version>
